@@ -18,6 +18,8 @@ public class Main {
 
         try {
             PageEntity rootEntity = aemScraperService.scrape(rootUrl);
+            rootEntity = aemScraperService.removeNonPages(rootEntity);
+
             System.out.println(rootEntity);
         } catch (IOException e) {
             System.out.println(e.getMessage());

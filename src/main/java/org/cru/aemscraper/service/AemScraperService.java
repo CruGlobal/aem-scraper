@@ -6,4 +6,6 @@ import java.io.IOException;
 
 public interface AemScraperService {
     PageEntity scrape(String pageUrl) throws IOException;
+
+    PageEntity removeNonPages(PageEntity pageEntity);
 }

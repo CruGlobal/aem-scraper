@@ -9,6 +9,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AemScraperServiceImpl implements AemScraperService {
@@ -40,6 +41,26 @@ public class AemScraperServiceImpl implements AemScraperService {
             }
         }
         return rootEntity;
+    }
+
+    public PageEntity removeNonPages(final PageEntity pageEntity) {
+        PageEntity filtered = new PageEntity()
+            .withChildren(new ArrayList<>())
+            .withClassType(pageEntity.getClassType())
+            .withLinks(pageEntity.getLinks())
+            .withProperties(pageEntity.getProperties());
+
+        for (PageEntity child : pageEntity.getChildren()) {
+            if (child.getChildren() != null && !child.getChildren().isEmpty()) {
+                child = removeNonPages(child);
+            }
+            for (String classType : child.getClassType()) {
+                if (classType.equals("content/page")) {
+                    filtered.getChildren().add(child);
+                }
+            }
+        }
+        return filtered;
     }
 
     private void handlePagination(final PageEntity page) throws IOException {

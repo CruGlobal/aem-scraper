@@ -1,5 +1,6 @@
 package org.cru.aemscraper.service.impl;
 
+import jersey.repackaged.com.google.common.collect.ImmutableList;
 import jersey.repackaged.com.google.common.collect.Iterables;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.cru.aemscraper.model.Link;
@@ -11,17 +12,24 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AemScraperServiceImplTest {
     private static final String BASE_URL = "http://localhost:4503/api/content/sites/mine/us/en";
     private static final String ROOT_URL = BASE_URL + ".json";
+
+    private static final List<String> PAGE_TYPE = ImmutableList.of("content/page");
 
     private AemScraperServiceImpl aemScraperService;
     private Client mockClient;
@@ -40,8 +48,8 @@ class AemScraperServiceImplTest {
     public void testGetPageEntity() throws Exception {
         PageEntity rootEntity = aemScraperService.getPageEntity(ROOT_URL);
 
-        assertNotNull(rootEntity);
-        assertEquals(1, rootEntity.getChildren().size());
+        assertThat(rootEntity, is(not(nullValue())));
+        assertThat(rootEntity.getChildren().size(), is(equalTo(1)));
     }
 
     private String buildRootJson() {
@@ -110,7 +118,7 @@ class AemScraperServiceImplTest {
         PageEntity pageEntity = new PageEntity()
             .withLinks(Lists.newArrayList(nextPageLink));
 
-        assertTrue(aemScraperService.hasMorePages(pageEntity));
+        assertThat(aemScraperService.hasMorePages(pageEntity), is(equalTo(true)));
     }
 
     @Test
@@ -121,7 +129,7 @@ class AemScraperServiceImplTest {
         PageEntity pageEntity = new PageEntity()
             .withLinks(Lists.newArrayList(selfPageLink));
 
-        assertFalse(aemScraperService.hasMorePages(pageEntity));
+        assertThat(aemScraperService.hasMorePages(pageEntity), is(equalTo(false)));
     }
 
     @Test
@@ -138,10 +146,10 @@ class AemScraperServiceImplTest {
         mockClient(grandchildUrl, mockGrandchildResponse);
 
         PageEntity rootEntity = aemScraperService.scrape(ROOT_URL);
-        assertNotNull(rootEntity);
-        assertEquals(1, rootEntity.getChildren().size());
+        assertThat(rootEntity, is(not(nullValue())));
+        assertThat(rootEntity.getChildren().size(), is(equalTo(1)));
         PageEntity child = Iterables.getOnlyElement(rootEntity.getChildren());
-        assertEquals(1, child.getChildren().size());
+        assertThat(child.getChildren().size(), is(equalTo(1)));
     }
 
     private String buildChildJson() {
@@ -254,5 +262,73 @@ class AemScraperServiceImplTest {
         when(mockTarget.request()).thenReturn(mockBuilder);
 
         when(mockClient.target(url)).thenReturn(mockTarget);
+    }
+
+    @Test
+    void testRemoveNonPages() {
+        PageEntity pageGrandchild = new PageEntity().withClassType(PAGE_TYPE);
+        PageEntity nonPageGrandchild = new PageEntity().withClassType(ImmutableList.of("core/services"));
+
+        List<PageEntity> allGrandchildren = Lists.newArrayList(pageGrandchild, nonPageGrandchild);
+
+        PageEntity pageChildWithChildren = new PageEntity()
+            .withClassType(PAGE_TYPE)
+            .withChildren(allGrandchildren);
+
+        PageEntity pageChild = new PageEntity().withClassType(PAGE_TYPE);
+        PageEntity nonPageChild = new PageEntity().withClassType(ImmutableList.of("core/services"));
+
+        List<PageEntity> allChildren = Lists.newArrayList(pageChild, pageChildWithChildren, nonPageChild);
+
+        PageEntity rootEntity = new PageEntity()
+            .withChildren(allChildren)
+            .withClassType(PAGE_TYPE);
+
+        List<PageEntity> expectedGrandchildren = Lists.newArrayList(pageGrandchild);
+        PageEntity expectedChildWithChildren = new PageEntity()
+            .withClassType(PAGE_TYPE)
+            .withChildren(expectedGrandchildren);
+
+        List<PageEntity> expectedChildren = Lists.newArrayList(pageChild, expectedChildWithChildren);
+
+        PageEntity expected = new PageEntity()
+            .withChildren(expectedChildren)
+            .withClassType(PAGE_TYPE);
+
+        PageEntity filteredEntity = aemScraperService.removeNonPages(rootEntity);
+
+        assertDeepEquals(expected, filteredEntity);
+    }
+
+    private void assertDeepEquals(final PageEntity expected, final PageEntity actual) {
+        if (expected.getClassType() == null) {
+            assertThat(actual.getClassType() == null, is(equalTo(true)));
+        } else {
+            assertThat(expected.getClassType(), hasItems(actual.getClassType().toArray(new String[0])));
+        }
+
+        if (expected.getLinks() == null) {
+            assertThat(actual.getLinks() == null, is(equalTo(true)));
+        } else {
+            assertThat(expected.getLinks(), hasItems(actual.getLinks().toArray(new Link[0])));
+        }
+
+        if (expected.getProperties() == null) {
+            assertThat(actual.getProperties() == null, is(equalTo(true)));
+        } else {
+            for (Map.Entry<String, Object> entry : expected.getProperties().entrySet()) {
+                assertThat(actual.getProperties(), hasEntry(entry.getKey(), entry.getValue()));
+            }
+        }
+
+        if (expected.getChildren() == null) {
+            assertThat(actual.getChildren() == null, is(equalTo(true)));
+        } else {
+            int i = 0;
+            for (PageEntity child : expected.getChildren()) {
+                assertDeepEquals(child, actual.getChildren().get(i));
+                i++;
+            }
+        }
     }
 }
