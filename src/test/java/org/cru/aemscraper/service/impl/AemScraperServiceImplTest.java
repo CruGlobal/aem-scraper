@@ -45,7 +45,7 @@ class AemScraperServiceImplTest {
     }
 
     @Test
-    public void testGetPageEntity() throws Exception {
+    void testGetPageEntity() throws Exception {
         PageEntity rootEntity = aemScraperService.getPageEntity(ROOT_URL);
 
         assertThat(rootEntity, is(not(nullValue())));
@@ -111,7 +111,7 @@ class AemScraperServiceImplTest {
     }
 
     @Test
-    public void testHasMorePages() {
+    void testHasMorePages() {
         Link nextPageLink = new Link()
             .withHref("http://some-page/api/content/next.json")
             .withRel(Lists.newArrayList("next"));
@@ -122,7 +122,7 @@ class AemScraperServiceImplTest {
     }
 
     @Test
-    public void testDoesNotHaveMorePages() {
+    void testDoesNotHaveMorePages() {
         Link selfPageLink = new Link()
             .withHref("http://some-page/api/content/self.json")
             .withRel(Lists.newArrayList("self"));
@@ -133,7 +133,7 @@ class AemScraperServiceImplTest {
     }
 
     @Test
-    public void testScrape() throws Exception {
+    void testScrape() throws Exception {
         String childUrl = BASE_URL + "/child.json";
         String grandchildUrl = BASE_URL + "/child/grandchild.json";
 
