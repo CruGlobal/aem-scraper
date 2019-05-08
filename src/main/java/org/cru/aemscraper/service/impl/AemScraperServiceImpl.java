@@ -23,6 +23,7 @@ public class AemScraperServiceImpl implements AemScraperService {
         this.client = client;
     }
 
+    @Override
     public PageEntity scrape(final String pageUrl) throws IOException {
         PageEntity rootEntity = getPageEntity(pageUrl);
 
@@ -43,6 +44,7 @@ public class AemScraperServiceImpl implements AemScraperService {
         return rootEntity;
     }
 
+    @Override
     public PageEntity removeNonPages(final PageEntity pageEntity) {
         PageEntity filtered = new PageEntity()
             .withChildren(new ArrayList<>())
