@@ -8,7 +8,6 @@ import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
 import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +38,13 @@ public class Main {
 
 //            byte[] csvBytes = csvService.createCsvBytes(pageData);
             csvService.createCsvFile(pageData);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private static void parsePages(final PageEntity pageEntity) throws IOException {
+    private static void parsePages(final PageEntity pageEntity) {
         if (pageEntity.getChildren() != null) {
             for (PageEntity child : pageEntity.getChildren()) {
                 parsePages(child);

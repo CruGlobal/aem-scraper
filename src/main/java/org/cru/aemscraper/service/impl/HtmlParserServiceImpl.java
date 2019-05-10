@@ -7,11 +7,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
-
 public class HtmlParserServiceImpl implements HtmlParserService {
     @Override
-    public String parsePage(final PageEntity pageEntity) throws IOException {
+    public String parsePage(final PageEntity pageEntity) {
         if (pageEntity.getLinks() == null || pageEntity.getLinks().isEmpty()) {
             return "";
         }
