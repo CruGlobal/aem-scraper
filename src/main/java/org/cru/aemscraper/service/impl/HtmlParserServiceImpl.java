@@ -21,6 +21,12 @@ public class HtmlParserServiceImpl implements HtmlParserService {
             return "";
         }
 
+        // Skip any redirects
+        if (isRedirectPage(pageEntity)) {
+            System.out.println("Skipping redirect: " + url + " -> " + pageEntity.getProperties().get("redirectTarget"));
+            return "";
+        }
+
         try {
             Document document = Jsoup.connect(url).get();
 
@@ -35,6 +41,13 @@ public class HtmlParserServiceImpl implements HtmlParserService {
             e.printStackTrace();
             return "";
         }
+    }
+
+    private boolean isRedirectPage(final PageEntity pageEntity) {
+        return pageEntity.getProperties().get("redirectTarget") != null ||
+            pageEntity.getProperties().get("cq:redirectTarget") != null ||
+            (pageEntity.getProperties().get("cq:template") != null &&
+                pageEntity.getProperties().get("cq:template").equals("/apps/CruOrgApp/templates/redirect"));
     }
 
     private String getUrl(final PageEntity pageEntity) {
