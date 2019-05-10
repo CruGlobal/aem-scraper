@@ -21,13 +21,20 @@ public class HtmlParserServiceImpl implements HtmlParserService {
             return "";
         }
 
-        Document document = Jsoup.connect(url).get();
-        Element body = document.body();
+        try {
+            Document document = Jsoup.connect(url).get();
 
-        String navigationText = getNavigationText(body);
-        String bodyText = document.body().text();
+            Element body = document.body();
 
-        return bodyText.replace(navigationText, "");
+            String navigationText = getNavigationText(body);
+            String bodyText = document.body().text();
+
+            return bodyText.replace(navigationText, "");
+        } catch (Exception e) {
+            System.out.println("Error handling URL: " + url);
+            e.printStackTrace();
+            return "";
+        }
     }
 
     private String getUrl(final PageEntity pageEntity) {
