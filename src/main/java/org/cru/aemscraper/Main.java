@@ -9,14 +9,13 @@ import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
     private static HtmlParserService htmlParserService;
-    private static List<String> pagesText = new ArrayList<>();
+//    private static List<String> pagesText = new ArrayList<>();
     private static Map<String, String> pageData = new HashMap<>();
 
     public static void main(String args[]) {
@@ -36,7 +35,7 @@ public class Main {
             System.out.println(rootEntity);
 
             parsePages(rootEntity);
-            pagesText.forEach(System.out::println);
+//            pagesText.forEach(System.out::println);
 
 //            byte[] csvBytes = csvService.createCsvBytes(pageData);
             csvService.createCsvFile(pageData);
@@ -53,7 +52,7 @@ public class Main {
             }
         }
 
-        pagesText.add(htmlParserService.parsePage(pageEntity));
+//        pagesText.add(htmlParserService.parsePage(pageEntity));
         pageData.put(htmlParserService.parsePage(pageEntity), getContentScore(pageEntity));
     }
 
