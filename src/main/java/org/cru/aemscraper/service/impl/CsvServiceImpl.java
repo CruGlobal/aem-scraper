@@ -20,10 +20,13 @@ public class CsvServiceImpl implements CsvService {
         CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
 
         for (Map.Entry<String, String> entry : pageData.entrySet()) {
-            csvPrinter.printRecord(entry.getValue(), entry.getKey());
+            if (!entry.getKey().isEmpty()) {
+                csvPrinter.printRecord(entry.getValue(), entry.getKey());
+            }
         }
 
         csvPrinter.flush();
+        csvPrinter.close();
     }
 
     @Override
