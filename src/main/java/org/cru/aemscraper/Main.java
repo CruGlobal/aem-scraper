@@ -2,17 +2,22 @@ package org.cru.aemscraper;
 
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
+import org.cru.aemscraper.service.CsvService;
 import org.cru.aemscraper.service.HtmlParserService;
 import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
+import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
     private static HtmlParserService htmlParserService;
     private static List<String> pagesText = new ArrayList<>();
+    private static Map<String, String> pageData = new HashMap<>();
 
     public static void main(String args[]) {
         String rootUrl = args[0];
@@ -23,6 +28,7 @@ public class Main {
 
         AemScraperService aemScraperService = new AemScraperServiceImpl();
         htmlParserService = new HtmlParserServiceImpl();
+        CsvService csvService = new CsvServiceImpl();
 
         try {
             PageEntity rootEntity = aemScraperService.scrape(rootUrl);
@@ -31,6 +37,9 @@ public class Main {
 
             parsePages(rootEntity);
             pagesText.forEach(System.out::println);
+
+//            byte[] csvBytes = csvService.createCsvBytes(pageData);
+            csvService.createCsvFile(pageData);
         } catch (IOException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -45,5 +54,26 @@ public class Main {
         }
 
         pagesText.add(htmlParserService.parsePage(pageEntity));
+        pageData.put(htmlParserService.parsePage(pageEntity), getContentScore(pageEntity));
+    }
+
+    private static String getContentScore(final PageEntity pageEntity) {
+        if (pageEntity.getProperties() == null) {
+            return "NONE";
+        }
+
+        for (Map.Entry<String, Object> entry : pageEntity.getProperties().entrySet()) {
+            if (entry.getKey().equals("score")) {
+                return entry.getValue().toString();
+            } else if (entry.getKey().equals("cq:tags")) {
+                List<String> tags = (List<String>) entry.getValue();
+                for (String tag : tags) {
+                    if (tag.startsWith("target-audience:scale-of-belief/")) {
+                        return tag.substring(tag.lastIndexOf("/"));
+                    }
+                }
+            }
+        }
+        return "NONE";
     }
 }
