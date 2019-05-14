@@ -27,3 +27,7 @@ Above, specify `file` if you want the program to generate a csv file on your loc
 
 If you have previously generated a csv file and placed it into `./data.csv`, then you can run the program with the 
 flag `-DonlySendToS3=true`.
+
+#### Example:
+`java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json
+ my-bucket /first/second/folder file`
