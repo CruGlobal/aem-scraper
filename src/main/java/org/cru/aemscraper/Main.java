@@ -91,7 +91,7 @@ public class Main {
         pageData.put(htmlParserService.parsePage(pageEntity), getContentScore(pageEntity));
     }
 
-    private static String getContentScore(final PageEntity pageEntity) {
+    static String getContentScore(final PageEntity pageEntity) {
         if (pageEntity.getProperties() == null) {
             return "NONE";
         }
@@ -103,7 +103,7 @@ public class Main {
                 List<String> tags = (List<String>) entry.getValue();
                 for (String tag : tags) {
                     if (tag.startsWith("target-audience:scale-of-belief/")) {
-                        return tag.substring(tag.lastIndexOf("/"));
+                        return tag.substring(tag.lastIndexOf("/") + 1);
                     }
                 }
             }
