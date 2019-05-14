@@ -24,6 +24,11 @@ public class Main {
             return;
         }
 
+        String type = "file";
+        if (args[1] != null) {
+            type = args[1];
+        }
+
         AemScraperService aemScraperService = new AemScraperServiceImpl();
         htmlParserService = new HtmlParserServiceImpl();
         CsvService csvService = new CsvServiceImpl();
@@ -36,8 +41,11 @@ public class Main {
             parsePages(rootEntity);
 //            pagesText.forEach(System.out::println);
 
-//            byte[] csvBytes = csvService.createCsvBytes(pageData);
-            csvService.createCsvFile(pageData);
+            if (type.equals("file")) {
+                csvService.createCsvFile(pageData);
+            } else if (type.equals("bytes")) {
+                byte[] csvBytes = csvService.createCsvBytes(pageData);
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
