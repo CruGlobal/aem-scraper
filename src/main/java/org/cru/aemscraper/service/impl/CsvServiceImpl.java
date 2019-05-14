@@ -6,6 +6,7 @@ import org.cru.aemscraper.service.CsvService;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class CsvServiceImpl implements CsvService {
     private static final String CSV_FILE = "./data.csv";
     @Override
-    public void createCsvFile(final Map<String, String> pageData) throws IOException {
+    public File createCsvFile(final Map<String, String> pageData) throws IOException {
         BufferedWriter writer = Files.newBufferedWriter(Paths.get(CSV_FILE));
         CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
 
@@ -27,6 +28,8 @@ public class CsvServiceImpl implements CsvService {
 
         csvPrinter.flush();
         csvPrinter.close();
+
+        return Paths.get(CSV_FILE).toFile();
     }
 
     @Override

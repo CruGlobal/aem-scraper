@@ -20,6 +20,7 @@ Add a JAR Application
 
 `cd target/`
 
-`java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> <file or bytes>`
+`java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> <s3 bucket name> 
+<path to s3 file (not including the file name)> <file or bytes>`
 
 Above, specify `file` if you want the program to generate a csv file on your local machine, otherwise specify `bytes`.

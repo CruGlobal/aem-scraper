@@ -4,10 +4,14 @@ import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.service.CsvService;
 import org.cru.aemscraper.service.HtmlParserService;
+import org.cru.aemscraper.service.S3Service;
 import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
 import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
+import org.cru.aemscraper.service.impl.S3ServiceImpl;
+import software.amazon.awssdk.utils.StringUtils;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,18 +24,26 @@ public class Main {
     public static void main(String args[]) {
         String rootUrl = args[0];
 
-        if (rootUrl == null || rootUrl.isEmpty()) {
+        if (StringUtils.isEmpty(rootUrl)) {
+            return;
+        }
+
+        String bucketName = args[1];
+        String keyPrefix = args[2];
+
+        if (StringUtils.isEmpty(bucketName) || StringUtils.isEmpty(keyPrefix)) {
             return;
         }
 
         String type = "file";
-        if (args[1] != null) {
-            type = args[1];
+        if (args[3] != null) {
+            type = args[3];
         }
 
         AemScraperService aemScraperService = new AemScraperServiceImpl();
         htmlParserService = new HtmlParserServiceImpl();
         CsvService csvService = new CsvServiceImpl();
+        S3Service s3Service = new S3ServiceImpl(bucketName, keyPrefix);
 
         try {
             PageEntity rootEntity = aemScraperService.scrape(rootUrl);
@@ -42,9 +54,11 @@ public class Main {
 //            pagesText.forEach(System.out::println);
 
             if (type.equals("file")) {
-                csvService.createCsvFile(pageData);
+                File csvFile = csvService.createCsvFile(pageData);
+                s3Service.sendCsvToS3(csvFile);
             } else if (type.equals("bytes")) {
                 byte[] csvBytes = csvService.createCsvBytes(pageData);
+                s3Service.sendCsvBytesToS3(csvBytes);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
