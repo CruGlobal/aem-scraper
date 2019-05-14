@@ -52,6 +52,10 @@ public class AemScraperServiceImpl implements AemScraperService {
             .withLinks(pageEntity.getLinks())
             .withProperties(pageEntity.getProperties());
 
+        if (pageEntity.getChildren() == null) {
+            return filtered;
+        }
+
         for (PageEntity child : pageEntity.getChildren()) {
             if (child.getChildren() != null && !child.getChildren().isEmpty()) {
                 child = removeNonPages(child);
