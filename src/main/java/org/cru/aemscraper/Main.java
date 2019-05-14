@@ -19,7 +19,6 @@ import java.util.Map;
 
 public class Main {
     private static HtmlParserService htmlParserService;
-//    private static List<String> pagesText = new ArrayList<>();
     private static Map<String, String> pageData = new HashMap<>();
 
     public static void main(String args[]) {
@@ -67,7 +66,6 @@ public class Main {
                 System.out.println(rootEntity);
 
                 parsePages(rootEntity);
-//            pagesText.forEach(System.out::println);
 
                 if (type.equals("file")) {
                     File csvFile = csvService.createCsvFile(pageData);
@@ -90,7 +88,6 @@ public class Main {
             }
         }
 
-//        pagesText.add(htmlParserService.parsePage(pageEntity));
         pageData.put(htmlParserService.parsePage(pageEntity), getContentScore(pageEntity));
     }
 
