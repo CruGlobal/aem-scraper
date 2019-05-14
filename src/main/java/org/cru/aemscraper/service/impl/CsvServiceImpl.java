@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 public class CsvServiceImpl implements CsvService {
-    private static final String CSV_FILE = "./data.csv";
+    public static final String CSV_FILE = "./data.csv";
     @Override
     public File createCsvFile(final Map<String, String> pageData) throws IOException {
         BufferedWriter writer = Files.newBufferedWriter(Paths.get(CSV_FILE));

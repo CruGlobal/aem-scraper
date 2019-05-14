@@ -24,3 +24,6 @@ Add a JAR Application
 <path to s3 file (not including the file name)> <file or bytes>`
 
 Above, specify `file` if you want the program to generate a csv file on your local machine, otherwise specify `bytes`.
+
+If you have previously generated a csv file and placed it into `./data.csv`, then you can run the program with the 
+flag `-DonlySendToS3=true`.

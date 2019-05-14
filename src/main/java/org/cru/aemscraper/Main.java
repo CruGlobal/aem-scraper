@@ -12,6 +12,7 @@ import org.cru.aemscraper.service.impl.S3ServiceImpl;
 import software.amazon.awssdk.utils.StringUtils;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,25 +41,41 @@ public class Main {
             type = args[3];
         }
 
+        boolean onlySendToS3 = Boolean.valueOf(System.getProperty("onlySendToS3"));
+
         AemScraperService aemScraperService = new AemScraperServiceImpl();
         htmlParserService = new HtmlParserServiceImpl();
         CsvService csvService = new CsvServiceImpl();
         S3Service s3Service = new S3ServiceImpl(bucketName, keyPrefix);
 
         try {
-            PageEntity rootEntity = aemScraperService.scrape(rootUrl);
-            rootEntity = aemScraperService.removeNonPages(rootEntity);
-            System.out.println(rootEntity);
+            if (onlySendToS3) {
+                if (!type.equals("file")) {
+                    System.out.println("Must use type \"file\" to only send to S3");
+                    return;
+                }
 
-            parsePages(rootEntity);
+                File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
+                if (existingFile == null) {
+                    System.out.println("File does not exist!");
+                    return;
+                }
+                s3Service.sendCsvToS3(existingFile);
+            } else {
+                PageEntity rootEntity = aemScraperService.scrape(rootUrl);
+                rootEntity = aemScraperService.removeNonPages(rootEntity);
+                System.out.println(rootEntity);
+
+                parsePages(rootEntity);
 //            pagesText.forEach(System.out::println);
 
-            if (type.equals("file")) {
-                File csvFile = csvService.createCsvFile(pageData);
-                s3Service.sendCsvToS3(csvFile);
-            } else if (type.equals("bytes")) {
-                byte[] csvBytes = csvService.createCsvBytes(pageData);
-                s3Service.sendCsvBytesToS3(csvBytes);
+                if (type.equals("file")) {
+                    File csvFile = csvService.createCsvFile(pageData);
+                    s3Service.sendCsvToS3(csvFile);
+                } else if (type.equals("bytes")) {
+                    byte[] csvBytes = csvService.createCsvBytes(pageData);
+                    s3Service.sendCsvBytesToS3(csvBytes);
+                }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
