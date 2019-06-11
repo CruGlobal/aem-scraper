@@ -9,6 +9,8 @@ import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
 import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
 import org.cru.aemscraper.service.impl.S3ServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.utils.StringUtils;
 
 import java.io.File;
@@ -18,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Main {
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
     private static HtmlParserService htmlParserService;
     private static Map<String, String> pageData = new HashMap<>();
 
@@ -51,20 +55,20 @@ public class Main {
         try {
             if (onlySendToS3) {
                 if (!type.equals("file")) {
-                    System.out.println("Must use type \"file\" to only send to S3");
+                    LOG.error("Must use type \"file\" to only send to S3");
                     return;
                 }
 
                 File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
                 if (existingFile == null) {
-                    System.out.println("File does not exist!");
+                    LOG.error("File does not exist!");
                     return;
                 }
                 s3Service.sendCsvToS3(existingFile);
             } else {
                 PageEntity rootEntity = aemScraperService.scrape(rootUrl);
                 rootEntity = aemScraperService.removeNonPages(rootEntity);
-                System.out.println(rootEntity);
+                LOG.debug(rootEntity.toString());
 
                 parsePages(rootEntity);
 
@@ -83,8 +87,7 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
     }
 

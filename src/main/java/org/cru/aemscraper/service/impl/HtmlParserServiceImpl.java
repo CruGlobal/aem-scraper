@@ -6,8 +6,12 @@ import org.cru.aemscraper.service.HtmlParserService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HtmlParserServiceImpl implements HtmlParserService {
+    private static final Logger LOG = LoggerFactory.getLogger(HtmlParserServiceImpl.class);
+
     @Override
     public String parsePage(final PageEntity pageEntity) {
         if (pageEntity.getLinks() == null || pageEntity.getLinks().isEmpty()) {
@@ -21,7 +25,7 @@ public class HtmlParserServiceImpl implements HtmlParserService {
 
         // Skip any redirects
         if (isRedirectPage(pageEntity)) {
-            System.out.println("Skipping redirect: " + url + " -> " + pageEntity.getProperties().get("redirectTarget"));
+            LOG.info("Skipping redirect: " + url + " -> " + pageEntity.getProperties().get("redirectTarget"));
             return "";
         }
 
@@ -35,8 +39,7 @@ public class HtmlParserServiceImpl implements HtmlParserService {
 
             return bodyText.replace(navigationText, "");
         } catch (Exception e) {
-            System.out.println("Error handling URL: " + url);
-            e.printStackTrace();
+            LOG.error("Error handling URL: " + url, e);
             return "";
         }
     }

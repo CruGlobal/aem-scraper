@@ -31,6 +31,10 @@ flag `-DonlySendToS3=true`.
 If you want to test what will be inserted into the CSV file without sending it to S3, pass in the flag
 `-DonlyBuildCSV=true` when running the program.
 
+If you want to set a log file instead of logging to the console, you can pass in the flag
+`-Dorg.slf4j.simpleLogger.logFile={path/to/file}`.
+
 #### Example:
 `java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json
- my-bucket /first/second/folder file`
+ my-bucket /first/second/folder file -DonlySendToS3=false -DonlyBuildCSV=false
+ -Dorg.slf4j.simpleLogger.logFile=./output.log`
