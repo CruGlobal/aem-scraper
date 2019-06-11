@@ -35,7 +35,10 @@ public class AemScraperServiceImpl implements AemScraperService {
                     for (String rel : link.getRel()) {
                         if (rel.equals("self")) {
                             PageEntity realChild = scrape(link.getHref());
-                            child = child.withChildren(realChild.getChildren());
+                            child = child
+                                .withChildren(realChild.getChildren())
+                                .withLinks(realChild.getLinks())
+                                .withProperties(realChild.getProperties());
                         }
                     }
                 }
