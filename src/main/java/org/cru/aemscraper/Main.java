@@ -41,6 +41,7 @@ public class Main {
         }
 
         boolean onlySendToS3 = Boolean.valueOf(System.getProperty("onlySendToS3"));
+        boolean onlyBuildCsv = Boolean.valueOf(System.getProperty("onlyBuildCSV"));
 
         AemScraperService aemScraperService = new AemScraperServiceImpl();
         htmlParserService = new HtmlParserServiceImpl();
@@ -69,10 +70,16 @@ public class Main {
 
                 if (type.equals("file")) {
                     File csvFile = csvService.createCsvFile(pageData);
-                    s3Service.sendCsvToS3(csvFile);
+
+                    if (!onlyBuildCsv) {
+                        s3Service.sendCsvToS3(csvFile);
+                    }
                 } else if (type.equals("bytes")) {
                     byte[] csvBytes = csvService.createCsvBytes(pageData);
-                    s3Service.sendCsvBytesToS3(csvBytes);
+
+                    if (!onlyBuildCsv) {
+                        s3Service.sendCsvBytesToS3(csvBytes);
+                    }
                 }
             }
         } catch (Exception e) {
