@@ -25,7 +25,7 @@ public class HtmlParserServiceImpl implements HtmlParserService {
 
         // Skip any redirects
         if (isRedirectPage(pageEntity)) {
-            LOG.info("Skipping redirect: " + url + " -> " + pageEntity.getProperties().get("redirectTarget"));
+            LOG.info("Skipping redirect: " + url + " -> " + determineRedirectTarget(pageEntity));
             return "";
         }
 
@@ -45,10 +45,15 @@ public class HtmlParserServiceImpl implements HtmlParserService {
     }
 
     private boolean isRedirectPage(final PageEntity pageEntity) {
-        return pageEntity.getProperties().get("redirectTarget") != null ||
-            pageEntity.getProperties().get("cq:redirectTarget") != null ||
+        return determineRedirectTarget(pageEntity) != null ||
             (pageEntity.getProperties().get("cq:template") != null &&
                 pageEntity.getProperties().get("cq:template").equals("/apps/CruOrgApp/templates/redirect"));
+    }
+
+    private String determineRedirectTarget(final PageEntity pageEntity) {
+        return pageEntity.getProperties().get("redirectTarget") != null ?
+            (String) pageEntity.getProperties().get("redirectTarget") :
+            (String) pageEntity.getProperties().get("cq:redirectTarget");
     }
 
     private String getUrl(final PageEntity pageEntity) {
