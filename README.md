@@ -34,7 +34,11 @@ If you want to test what will be inserted into the CSV file without sending it t
 If you want to set a log file instead of logging to the console, you can pass in the flag
 `-Dorg.slf4j.simpleLogger.logFile={path/to/file}`.
 
+In order to determine the public facing URLs, we need to use a login to the AEM instance we are hitting.
+You can pass the username and password in as parameters when running the JAR with the flags
+`-Dusername` and `-Dpassword`.
+
 #### Example:
 `java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json
  my-bucket /first/second/folder file -DonlySendToS3=false -DonlyBuildCSV=false
- -Dorg.slf4j.simpleLogger.logFile=./output.log`
+ -Dorg.slf4j.simpleLogger.logFile=./output.log -Dusername=myuser -Dpassword=secretz`

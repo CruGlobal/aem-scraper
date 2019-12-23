@@ -105,12 +105,19 @@ public class Main {
         Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
         List<String> tags = getTags(pageProperties);
 
-        allPageData.add(
-            new PageData()
-                .withUrl(PageEntityUtil.getUrl(pageEntity))
-                .withHtmlBody(htmlParserService.parsePage(pageEntity))
-                .withContentScore(getContentScore(pageEntity, tags))
-                .withTags(getTagsWithoutScores(tags)));
+        String htmlBody = htmlParserService.parsePage(pageEntity);
+        String contentScore = getContentScore(pageEntity, tags);
+        Set<String> tagsWithoutScores = getTagsWithoutScores(tags);
+
+        Set<String> allPageUrls = PageEntityUtil.getPublicFacingUrls(pageEntity);
+        for (String url : allPageUrls) {
+            allPageData.add(
+                new PageData()
+                    .withUrl(url)
+                    .withHtmlBody(htmlBody)
+                    .withContentScore(contentScore)
+                    .withTags(tagsWithoutScores));
+        }
     }
 
     static String getContentScore(final PageEntity pageEntity, final List<String> tags) {
