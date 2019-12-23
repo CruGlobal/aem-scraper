@@ -15,9 +15,11 @@ import software.amazon.awssdk.utils.StringUtils;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -106,18 +108,38 @@ public class Main {
             return "NONE";
         }
 
-        for (Map.Entry<String, Object> entry : pageEntity.getProperties().entrySet()) {
-            if (entry.getKey().equals("score")) {
-                return entry.getValue().toString();
-            } else if (entry.getKey().equals("cq:tags")) {
-                List<String> tags = (List<String>) entry.getValue();
-                for (String tag : tags) {
-                    if (tag.startsWith("target-audience:scale-of-belief/")) {
-                        return tag.substring(tag.lastIndexOf("/") + 1);
-                    }
-                }
+        Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
+
+        String score = getScoreProperty(pageProperties);
+
+        if (score != null && score.trim().length() > 0) {
+            return score;
+        }
+        List<String> tags = getTags(pageProperties);
+        for (String tag : tags) {
+            if (tag.startsWith("target-audience:scale-of-belief/")) {
+                return tag.substring(tag.lastIndexOf("/") + 1);
             }
         }
         return "NONE";
+    }
+
+    static String getScoreProperty(final Set<Map.Entry<String, Object>> pageProperties) {
+        for (Map.Entry<String, Object> property : pageProperties) {
+            if (property.getKey().equals("score")) {
+                return property.getValue().toString();
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    static List<String> getTags(final Set<Map.Entry<String, Object>> pageProperties) {
+        for (Map.Entry<String, Object> property : pageProperties) {
+            if (property.getKey().equals("cq:tags")) {
+                return (List<String>) property.getValue();
+            }
+        }
+        return new ArrayList<>();
     }
 }
