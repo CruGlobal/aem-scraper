@@ -117,6 +117,14 @@ public class Main {
                     .withHtmlBody(htmlBody)
                     .withContentScore(contentScore)
                     .withTags(tagsWithoutScores));
+            if (url.contains("/content/cru")) {
+                allPageData.add(
+                    new PageData()
+                        .withUrl(url.replace("/content/cru", ""))
+                        .withHtmlBody(htmlBody)
+                        .withContentScore(contentScore)
+                        .withTags(tagsWithoutScores));
+            }
         }
     }
 
