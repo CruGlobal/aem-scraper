@@ -2,6 +2,7 @@ package org.cru.aemscraper.util;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageEntity;
@@ -16,7 +17,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -65,29 +68,54 @@ public class PageEntityUtil {
         if (contentUrl != null) {
             if (contentUrl.endsWith(INFINITY_EXTENSION)) {
                 try {
-                    Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
-                    Response response = client
-                        .target(new URI(contentUrl))
-                        .request()
-                        .accept(MediaType.APPLICATION_JSON)
-                        .get();
-
-                    JsonParser jsonParser = new ObjectMapper()
-                        .getFactory()
-                        .createParser(response.readEntity(String.class));
-                    PageInfinityJson infinityJson = jsonParser.readValueAs(PageInfinityJson.class);
-
-                    if (infinityJson.getJcrContent().isRedirect()) {
-                        // This means that when someone goes to the vanity URL, they get redirected to the non-vanity
-                        return new ArrayList<>();
+                    try {
+                        return getVanityPathsFromInfinityJson(getPageInfinityJson(contentUrl));
+                    } catch (MismatchedInputException mismatchedInputException) {
+                        /* In this case, the infinity.json most likely produced an output like
+                         * [
+                         *   "/content/site/us/en/some-page.0.json",
+                         *   "/content/site/us/en/some-page.1.json",
+                         *   "/content/site/us/en/some-page.2.json"
+                         * ]
+                         * which is for pagination purposes. The properties are on all but 0, and so we can use 1.
+                         */
+                        PageInfinityJson infinityJson = getPageInfinityJson(contentUrl.replace("infinity", "1"));
+                        return getVanityPathsFromInfinityJson(infinityJson);
                     }
-                    return infinityJson.getJcrContent().getVanityPaths();
                 } catch (Exception e) {
                     LOG.error("Failed to get infinity.json data", e);
                 }
             }
         }
         return new ArrayList<>();
+    }
+
+    private static PageInfinityJson getPageInfinityJson(final String contentUrl)
+        throws IOException, URISyntaxException {
+
+        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
+        Response response = client
+            .target(new URI(contentUrl))
+            .request()
+            .accept(MediaType.APPLICATION_JSON)
+            .get();
+
+        JsonParser jsonParser = new ObjectMapper()
+            .getFactory()
+            .createParser(response.readEntity(String.class));
+
+            return jsonParser.readValueAs(PageInfinityJson.class);
+    }
+
+    private static List<String> getVanityPathsFromInfinityJson(final PageInfinityJson infinityJson) {
+        if (infinityJson == null) {
+            return new ArrayList<>();
+        }
+        if (infinityJson.getJcrContent().isRedirect()) {
+            // This means that when someone goes to the vanity URL, they get redirected to the non-vanity
+            return new ArrayList<>();
+        }
+        return infinityJson.getJcrContent().getVanityPaths();
     }
 
     private static Set<String> getUrlsFromPaths(final Set<String> paths, final Client client) {
