@@ -29,7 +29,7 @@ public class Main {
     private static HtmlParserService htmlParserService;
     private static Set<PageData> allPageData = new HashSet<>();
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         String rootUrl = args[0];
 
         if (StringUtils.isEmpty(rootUrl)) {
@@ -48,8 +48,8 @@ public class Main {
             type = args[3];
         }
 
-        boolean onlySendToS3 = Boolean.valueOf(System.getProperty("onlySendToS3"));
-        boolean onlyBuildCsv = Boolean.valueOf(System.getProperty("onlyBuildCSV"));
+        boolean onlySendToS3 = Boolean.parseBoolean(System.getProperty("onlySendToS3"));
+        boolean onlyBuildCsv = Boolean.parseBoolean(System.getProperty("onlyBuildCSV"));
 
         AemScraperService aemScraperService = new AemScraperServiceImpl();
         htmlParserService = new HtmlParserServiceImpl();
@@ -64,10 +64,6 @@ public class Main {
                 }
 
                 File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
-                if (existingFile == null) {
-                    LOG.error("File does not exist!");
-                    return;
-                }
                 s3Service.sendCsvToS3(existingFile);
             } else {
                 PageEntity rootEntity = aemScraperService.scrape(rootUrl);
