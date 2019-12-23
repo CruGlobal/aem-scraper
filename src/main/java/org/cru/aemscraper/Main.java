@@ -101,29 +101,31 @@ public class Main {
             }
         }
 
+        Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
+        List<String> tags = getTags(pageProperties);
+
         allPageData.add(
             new PageData()
                 .withHtmlBody(htmlParserService.parsePage(pageEntity))
-                .withContentScore(getContentScore(pageEntity)));
+                .withContentScore(getContentScore(pageEntity, tags))
+                .withTags(getTagsWithoutScores(tags)));
     }
 
-    static String getContentScore(final PageEntity pageEntity) {
+    static String getContentScore(final PageEntity pageEntity, final List<String> tags) {
         if (pageEntity.getProperties() == null) {
             return "NONE";
         }
 
-        Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
-
-        String score = getScoreProperty(pageProperties);
-
-        if (score != null && score.trim().length() > 0) {
-            return score;
-        }
-        List<String> tags = getTags(pageProperties);
         for (String tag : tags) {
             if (tag.startsWith("target-audience:scale-of-belief/")) {
                 return tag.substring(tag.lastIndexOf("/") + 1);
             }
+        }
+
+        Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
+        String score = getScoreProperty(pageProperties);
+        if (score != null && score.trim().length() > 0) {
+            return score;
         }
         return "NONE";
     }
@@ -145,5 +147,16 @@ public class Main {
             }
         }
         return new ArrayList<>();
+    }
+
+    private static Set<String> getTagsWithoutScores(final List<String> tags) {
+        Set<String> tagsWithoutScores = new HashSet<>();
+        for (String tag : tags) {
+            if (tag.startsWith("target-audience:scale-of-belief/")) {
+                continue;
+            }
+            tagsWithoutScores.add(tag);
+        }
+        return tagsWithoutScores;
     }
 }

@@ -1,13 +1,13 @@
 package org.cru.aemscraper.model;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class PageData {
     private String url;
     private String htmlBody;
     private String contentScore;
-    private List<String> tags;
+    private Set<String> tags;
 
     public String getUrl() {
         return url;
@@ -36,11 +36,11 @@ public class PageData {
         return this;
     }
 
-    public List<String> getTags() {
+    public Set<String> getTags() {
         return tags;
     }
 
-    public PageData withTags(final List<String> tags) {
+    public PageData withTags(final Set<String> tags) {
         this.tags = tags;
         return this;
     }

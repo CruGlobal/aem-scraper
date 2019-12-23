@@ -21,7 +21,7 @@ public class MainTest {
         PageEntity page = new PageEntity()
             .withProperties(properties);
 
-        String score = Main.getContentScore(page);
+        String score = Main.getContentScore(page, new ArrayList<>());
         assertThat(score, is(equalTo("4")));
     }
 
@@ -37,7 +37,7 @@ public class MainTest {
         PageEntity page = new PageEntity()
             .withProperties(properties);
 
-        String score = Main.getContentScore(page);
+        String score = Main.getContentScore(page, tagList);
         assertThat(score, is(equalTo("6")));
     }
 }
