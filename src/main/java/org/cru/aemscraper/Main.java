@@ -10,6 +10,7 @@ import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
 import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
 import org.cru.aemscraper.service.impl.S3ServiceImpl;
+import org.cru.aemscraper.util.PageEntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.utils.StringUtils;
@@ -106,6 +107,7 @@ public class Main {
 
         allPageData.add(
             new PageData()
+                .withUrl(PageEntityUtil.getUrl(pageEntity))
                 .withHtmlBody(htmlParserService.parsePage(pageEntity))
                 .withContentScore(getContentScore(pageEntity, tags))
                 .withTags(getTagsWithoutScores(tags)));

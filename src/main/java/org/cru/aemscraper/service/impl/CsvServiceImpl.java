@@ -23,7 +23,7 @@ public class CsvServiceImpl implements CsvService {
 
         for (PageData entry : allPageData) {
             if (!entry.getHtmlBody().isEmpty()) {
-                csvPrinter.printRecord(entry.getContentScore(), entry.getHtmlBody(), entry.getTags());
+                csvPrinter.printRecord(entry.getContentScore(), entry.getHtmlBody(), entry.getTags(), entry.getUrl());
             }
         }
 
@@ -40,7 +40,7 @@ public class CsvServiceImpl implements CsvService {
         CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
 
         for (PageData entry : pageData) {
-            csvPrinter.printRecord(entry.getContentScore(), entry.getHtmlBody(), entry.getTags());
+            csvPrinter.printRecord(entry.getContentScore(), entry.getHtmlBody(), entry.getTags(), entry.getUrl());
         }
 
         csvPrinter.flush();
