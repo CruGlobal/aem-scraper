@@ -1,11 +1,13 @@
 package org.cru.aemscraper.service;
 
+import org.cru.aemscraper.model.PageData;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Set;
 
 public interface CsvService {
-    File createCsvFile(Map<String, String> pageData) throws IOException;
+    File createCsvFile(Set<PageData> pageData) throws IOException;
 
-    byte[] createCsvBytes(Map<String, String> pageData) throws IOException;
+    byte[] createCsvBytes(Set<PageData> pageData) throws IOException;
 }

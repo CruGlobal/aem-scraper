@@ -1,5 +1,6 @@
 package org.cru.aemscraper;
 
+import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.service.CsvService;
@@ -16,7 +17,7 @@ import software.amazon.awssdk.utils.StringUtils;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,7 @@ public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static HtmlParserService htmlParserService;
-    private static Map<String, String> pageData = new HashMap<>();
+    private static Set<PageData> allPageData = new HashSet<>();
 
     public static void main(String args[]) {
         String rootUrl = args[0];
@@ -75,13 +76,13 @@ public class Main {
                 parsePages(rootEntity);
 
                 if (type.equals("file")) {
-                    File csvFile = csvService.createCsvFile(pageData);
+                    File csvFile = csvService.createCsvFile(allPageData);
 
                     if (!onlyBuildCsv) {
                         s3Service.sendCsvToS3(csvFile);
                     }
                 } else if (type.equals("bytes")) {
-                    byte[] csvBytes = csvService.createCsvBytes(pageData);
+                    byte[] csvBytes = csvService.createCsvBytes(allPageData);
 
                     if (!onlyBuildCsv) {
                         s3Service.sendCsvBytesToS3(csvBytes);
@@ -100,7 +101,10 @@ public class Main {
             }
         }
 
-        pageData.put(htmlParserService.parsePage(pageEntity), getContentScore(pageEntity));
+        allPageData.add(
+            new PageData()
+                .withHtmlBody(htmlParserService.parsePage(pageEntity))
+                .withContentScore(getContentScore(pageEntity)));
     }
 
     static String getContentScore(final PageEntity pageEntity) {
