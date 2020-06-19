@@ -65,6 +65,8 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
                     }
                     i++;
                 }
+                bufferedWriter.write(END_ARRAY);
+                bufferedWriter.flush();
             }
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
