@@ -1,15 +1,19 @@
 package org.cru.aemscraper;
 
+import org.cru.aemscraper.model.CloudSearchDocument;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.service.CsvService;
 import org.cru.aemscraper.service.HtmlParserService;
+import org.cru.aemscraper.service.JsonFileBuilderService;
 import org.cru.aemscraper.service.S3Service;
 import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
 import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
+import org.cru.aemscraper.service.impl.JsonFileBuilderServiceImpl;
 import org.cru.aemscraper.service.impl.S3ServiceImpl;
+import org.cru.aemscraper.util.RunMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.utils.StringUtils;
@@ -26,6 +30,8 @@ public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static HtmlParserService htmlParserService;
+    private static AemScraperService aemScraperService;
+
     private static Set<PageData> allPageData = new HashSet<>();
 
     public static void main(String[] args) {
@@ -35,6 +41,26 @@ public class Main {
             return;
         }
 
+        RunMode runMode = RunMode.fromCode(System.getProperty("runMode"));
+
+        aemScraperService = new AemScraperServiceImpl();
+        htmlParserService = new HtmlParserServiceImpl();
+
+        try {
+            switch (runMode) {
+                case S3:
+                    sendToS3(args, rootUrl);
+                    break;
+                case CLOUDSEARCH:
+                    prepareForCloudSearch(rootUrl, args);
+                    break;
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    private static void sendToS3(final String[] args, final String rootUrl) throws Exception {
         String bucketName = args[1];
         String keyPrefix = args[2];
 
@@ -50,44 +76,53 @@ public class Main {
         boolean onlySendToS3 = Boolean.parseBoolean(System.getProperty("onlySendToS3"));
         boolean onlyBuildCsv = Boolean.parseBoolean(System.getProperty("onlyBuildCSV"));
 
-        AemScraperService aemScraperService = new AemScraperServiceImpl();
-        htmlParserService = new HtmlParserServiceImpl();
-        CsvService csvService = new CsvServiceImpl();
         S3Service s3Service = new S3ServiceImpl(bucketName, keyPrefix);
+        CsvService csvService = new CsvServiceImpl();
 
-        try {
-            if (onlySendToS3) {
-                if (!type.equals("file")) {
-                    LOG.error("Must use type \"file\" to only send to S3");
-                    return;
+        if (onlySendToS3) {
+            if (!type.equals("file")) {
+                LOG.error("Must use type \"file\" to only send to S3");
+                return;
+            }
+
+            File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
+            s3Service.sendCsvToS3(existingFile);
+        } else {
+            PageEntity rootEntity = aemScraperService.scrape(rootUrl);
+            rootEntity = aemScraperService.removeNonPages(rootEntity);
+            LOG.debug(rootEntity.toString());
+
+            parsePages(rootEntity);
+
+            if (type.equals("file")) {
+                File csvFile = csvService.createCsvFile(allPageData);
+
+                if (!onlyBuildCsv) {
+                    s3Service.sendCsvToS3(csvFile);
                 }
+            } else if (type.equals("bytes")) {
+                byte[] csvBytes = csvService.createCsvBytes(allPageData);
 
-                File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
-                s3Service.sendCsvToS3(existingFile);
-            } else {
-                PageEntity rootEntity = aemScraperService.scrape(rootUrl);
-                rootEntity = aemScraperService.removeNonPages(rootEntity);
-                LOG.debug(rootEntity.toString());
-
-                parsePages(rootEntity);
-
-                if (type.equals("file")) {
-                    File csvFile = csvService.createCsvFile(allPageData);
-
-                    if (!onlyBuildCsv) {
-                        s3Service.sendCsvToS3(csvFile);
-                    }
-                } else if (type.equals("bytes")) {
-                    byte[] csvBytes = csvService.createCsvBytes(allPageData);
-
-                    if (!onlyBuildCsv) {
-                        s3Service.sendCsvBytesToS3(csvBytes);
-                    }
+                if (!onlyBuildCsv) {
+                    s3Service.sendCsvBytesToS3(csvBytes);
                 }
             }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
         }
+    }
+
+    private static void prepareForCloudSearch(
+        final String rootUrl,
+        final String[] args) throws Exception {
+
+        CloudSearchDocument.Type type = CloudSearchDocument.Type.fromCode(args[1]);
+        PageEntity rootEntity = aemScraperService.scrape(rootUrl);
+        rootEntity = aemScraperService.removeNonPages(rootEntity);
+        LOG.debug(rootEntity.toString());
+
+        parsePages(rootEntity);
+
+        JsonFileBuilderService jsonFileBuilderService = new JsonFileBuilderServiceImpl();
+        jsonFileBuilderService.buildJsonFiles(allPageData, type);
     }
 
     private static void parsePages(final PageEntity pageEntity) {

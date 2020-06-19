@@ -11,7 +11,19 @@ import java.util.Map;
 })
 public abstract class CloudSearchDocument {
     public enum Type {
-        ADD, DELETE
+        ADD, DELETE;
+
+        public static Type fromCode(final String code) {
+            String upperCase = code.toUpperCase();
+            switch (upperCase) {
+                case "ADD":
+                    return ADD;
+                case "DELETE":
+                    return DELETE;
+                default:
+                    throw new IllegalArgumentException("Invalid code: " + code);
+            }
+        }
     }
 
     private String id;
