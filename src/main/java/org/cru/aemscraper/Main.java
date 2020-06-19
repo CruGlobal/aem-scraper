@@ -32,7 +32,7 @@ public class Main {
     private static HtmlParserService htmlParserService;
     private static AemScraperService aemScraperService;
 
-    private static Set<PageData> allPageData = new HashSet<>();
+    private static final Set<PageData> ALL_PAGE_DATA = new HashSet<>();
 
     public static void main(String[] args) {
         String rootUrl = args[0];
@@ -95,13 +95,13 @@ public class Main {
             parsePages(rootEntity);
 
             if (type.equals("file")) {
-                File csvFile = csvService.createCsvFile(allPageData);
+                File csvFile = csvService.createCsvFile(ALL_PAGE_DATA);
 
                 if (!onlyBuildCsv) {
                     s3Service.sendCsvToS3(csvFile);
                 }
             } else if (type.equals("bytes")) {
-                byte[] csvBytes = csvService.createCsvBytes(allPageData);
+                byte[] csvBytes = csvService.createCsvBytes(ALL_PAGE_DATA);
 
                 if (!onlyBuildCsv) {
                     s3Service.sendCsvBytesToS3(csvBytes);
@@ -122,7 +122,7 @@ public class Main {
         parsePages(rootEntity);
 
         JsonFileBuilderService jsonFileBuilderService = new JsonFileBuilderServiceImpl();
-        jsonFileBuilderService.buildJsonFiles(allPageData, type);
+        jsonFileBuilderService.buildJsonFiles(ALL_PAGE_DATA, type);
     }
 
     private static void parsePages(final PageEntity pageEntity) {
@@ -132,7 +132,7 @@ public class Main {
             }
         }
 
-        allPageData.add(
+        ALL_PAGE_DATA.add(
             new PageData()
                 .withHtmlBody(htmlParserService.parsePage(pageEntity))
                 .withContentScore(getContentScore(pageEntity)));
