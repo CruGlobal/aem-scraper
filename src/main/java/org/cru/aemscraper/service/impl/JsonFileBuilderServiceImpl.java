@@ -54,18 +54,17 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
                     String json = objectMapper.writeValueAsString(cloudSearchDocument);
                     if (hasRoom(bufferedWriter, json)) {
                         if (i > 0) {
-                            bufferedWriter.write(DELIMITER);
+                            bufferedWriter.append(DELIMITER);
                         }
-                        bufferedWriter.write(json);
+                        bufferedWriter.append(json);
                     }
                     else {
-                        bufferedWriter.write(END_ARRAY);
+                        bufferedWriter.append(END_ARRAY);
                         bufferedWriter.flush();
                         writeFiles(fileIndex + 1, i + 1, pageData, type);
                     }
-                    i++;
                 }
-                bufferedWriter.write(END_ARRAY);
+                bufferedWriter.append(END_ARRAY);
                 bufferedWriter.flush();
             }
         } catch (IOException e) {
@@ -117,7 +116,9 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
 
     private Map<String, String> buildFieldsFromData(final PageData data) {
         Map<String, String> fields = new HashMap<>();
-        fields.put("tags", Arrays.toString(data.getTags().toArray()));
+        if (data.getTags() != null) {
+            fields.put("tags", Arrays.toString(data.getTags().toArray()));
+        }
         return fields;
     }
 }
