@@ -1,8 +1,8 @@
 package org.cru.aemscraper.service.impl;
 
-import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.HtmlParserService;
+import org.cru.aemscraper.util.PageUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,10 +18,11 @@ public class HtmlParserServiceImpl implements HtmlParserService {
             return "";
         }
 
-        String url = getUrl(pageEntity);
+        String url = PageUtil.getContentUrl(pageEntity);
         if (url == null) {
             return "";
         }
+        url = useHtmlUrl(url);
 
         // Skip any redirects
         if (isRedirectPage(pageEntity)) {
@@ -54,17 +55,6 @@ public class HtmlParserServiceImpl implements HtmlParserService {
         return pageEntity.getProperties().get("redirectTarget") != null ?
             (String) pageEntity.getProperties().get("redirectTarget") :
             (String) pageEntity.getProperties().get("cq:redirectTarget");
-    }
-
-    private String getUrl(final PageEntity pageEntity) {
-        for (Link link : pageEntity.getLinks()) {
-            for (String rel : link.getRel()) {
-                if (rel.equals("content")) {
-                    return useHtmlUrl(link.getHref());
-                }
-            }
-        }
-        return null;
     }
 
     private String useHtmlUrl(final String url) {

@@ -8,6 +8,9 @@ public class PageData {
     private String htmlBody;
     private String contentScore;
     private List<String> tags;
+    private String title;
+    private String description;
+    private String imageUrl;
 
     public String getUrl() {
         return url;
@@ -45,6 +48,33 @@ public class PageData {
         return this;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public PageData withTitle(final String title) {
+        this.title = title;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public PageData withDescription(final String description) {
+        this.description = description;
+        return this;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public PageData withImageUrl(final String imageUrl) {
+        this.imageUrl = imageUrl;
+        return this;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         boolean equals = super.equals(obj);
@@ -57,7 +87,10 @@ public class PageData {
             return Objects.equals(getUrl(), other.getUrl())
                 && Objects.equals(getHtmlBody(), other.getHtmlBody())
                 && Objects.equals(getContentScore(), other.getContentScore())
-                && Objects.equals(getTags(), other.getTags());
+                && Objects.equals(getTags(), other.getTags())
+                && Objects.equals(getTitle(), other.getTitle())
+                && Objects.equals(getDescription(), other.getDescription())
+                && Objects.equals(getImageUrl(), other.getImageUrl());
         }
         return false;
     }

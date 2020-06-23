@@ -1,5 +1,7 @@
 package org.cru.aemscraper;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cru.aemscraper.model.CloudSearchDocument;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
@@ -13,12 +15,17 @@ import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
 import org.cru.aemscraper.service.impl.JsonFileBuilderServiceImpl;
 import org.cru.aemscraper.service.impl.S3ServiceImpl;
+import org.cru.aemscraper.util.PageUtil;
 import org.cru.aemscraper.util.RunMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.utils.StringUtils;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +38,7 @@ public class Main {
 
     private static HtmlParserService htmlParserService;
     private static AemScraperService aemScraperService;
+    private static Client client;
 
     private static final Set<PageData> ALL_PAGE_DATA = new HashSet<>();
 
@@ -92,7 +100,7 @@ public class Main {
             rootEntity = aemScraperService.removeNonPages(rootEntity);
             LOG.debug(rootEntity.toString());
 
-            parsePages(rootEntity);
+            parsePages(rootEntity, RunMode.S3);
 
             if (type.equals("file")) {
                 File csvFile = csvService.createCsvFile(ALL_PAGE_DATA);
@@ -119,23 +127,31 @@ public class Main {
         rootEntity = aemScraperService.removeNonPages(rootEntity);
         LOG.debug(rootEntity.toString());
 
-        parsePages(rootEntity);
+        client = ClientBuilder.newBuilder().build();
+
+        parsePages(rootEntity, RunMode.CLOUDSEARCH);
 
         JsonFileBuilderService jsonFileBuilderService = new JsonFileBuilderServiceImpl();
         jsonFileBuilderService.buildJsonFiles(ALL_PAGE_DATA, type);
     }
 
-    private static void parsePages(final PageEntity pageEntity) {
+    private static void parsePages(final PageEntity pageEntity, final RunMode runMode) throws IOException {
         if (pageEntity.getChildren() != null) {
             for (PageEntity child : pageEntity.getChildren()) {
-                parsePages(child);
+                parsePages(child, runMode);
             }
         }
 
-        ALL_PAGE_DATA.add(
-            new PageData()
-                .withHtmlBody(htmlParserService.parsePage(pageEntity))
-                .withContentScore(getContentScore(pageEntity)));
+        PageData pageData = new PageData()
+            .withHtmlBody(htmlParserService.parsePage(pageEntity))
+            .withContentScore(getContentScore(pageEntity))
+            .withTitle(getBasicStringProperty(pageEntity, "dc:title"))
+            .withDescription(getBasicStringProperty(pageEntity, "dc:description"));
+
+        if (runMode == RunMode.CLOUDSEARCH) {
+            pageData = pageData.withImageUrl(getImageUrl(pageEntity));
+        }
+        ALL_PAGE_DATA.add(pageData);
     }
 
     static String getContentScore(final PageEntity pageEntity) {
@@ -145,7 +161,7 @@ public class Main {
 
         Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
 
-        String score = getScoreProperty(pageProperties);
+        String score = getProperty(pageProperties, "score");
 
         if (score != null && score.trim().length() > 0) {
             return score;
@@ -159,9 +175,41 @@ public class Main {
         return "NONE";
     }
 
-    static String getScoreProperty(final Set<Map.Entry<String, Object>> pageProperties) {
+    static String getBasicStringProperty(final PageEntity pageEntity, final String key) {
+        if (pageEntity.getProperties() == null) {
+            return null;
+        }
+
+        Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
+        return getProperty(pageProperties, key);
+    }
+
+    static String getImageUrl(final PageEntity pageEntity) throws IOException {
+        String contentUrl = PageUtil.getContentUrl(pageEntity);
+
+        if (contentUrl != null && contentUrl.endsWith(".json")) {
+            Response response = client.target(contentUrl).request().get();
+            String contentJson = response.readEntity(String.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readValue(contentJson, JsonNode.class);
+
+            if (jsonNode != null) {
+                JsonNode jcrContent = jsonNode.get("jcr:content");
+
+                if (jcrContent != null) {
+                    JsonNode imageNode = jcrContent.get("image");
+                    if (imageNode != null) {
+                        return imageNode.get("fileReference").asText();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    static String getProperty(final Set<Map.Entry<String, Object>> pageProperties, final String key) {
         for (Map.Entry<String, Object> property : pageProperties) {
-            if (property.getKey().equals("score")) {
+            if (property.getKey().equals(key)) {
                 return property.getValue().toString();
             }
         }
