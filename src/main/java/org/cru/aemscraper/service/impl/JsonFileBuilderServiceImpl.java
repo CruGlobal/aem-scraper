@@ -29,7 +29,7 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     private static final String START_ARRAY = "[";
     private static final String END_ARRAY = "]";
     private static final String DELIMITER = ",";
-    private static final Long FIVE_MB = (long) (5 * 1024 * 1024);
+    private static final Long FIVE_MB = (long) (5 * 1000 * 1000);
 
     @Override
     public void buildJsonFiles(final Set<PageData> pageData, final CloudSearchDocument.Type type) {
@@ -52,16 +52,16 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
                     CloudSearchDocument cloudSearchDocument = buildDocument(type, data);
 
                     String json = objectMapper.writeValueAsString(cloudSearchDocument);
-                    if (hasRoom(bufferedWriter, json)) {
-                        if (i > 0) {
+                    if (hasRoom(file, json)) {
+                        if (i > dataIndex) {
                             bufferedWriter.append(DELIMITER);
                         }
                         bufferedWriter.append(json);
                     }
                     else {
-                        bufferedWriter.append(END_ARRAY);
                         bufferedWriter.flush();
                         writeFiles(fileIndex + 1, i + 1, pageData, type);
+                        break;
                     }
                 }
                 bufferedWriter.append(END_ARRAY);
@@ -107,8 +107,8 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
         return file;
     }
 
-    private boolean hasRoom(final BufferedWriter writer, final String json) {
-        return writer.toString().getBytes(StandardCharsets.UTF_8).length
+    private boolean hasRoom(final File file, final String json) {
+        return file.length()
             + json.getBytes(StandardCharsets.UTF_8).length
             + DELIMITER.getBytes(StandardCharsets.UTF_8).length
             + END_ARRAY.getBytes(StandardCharsets.UTF_8).length < FIVE_MB;

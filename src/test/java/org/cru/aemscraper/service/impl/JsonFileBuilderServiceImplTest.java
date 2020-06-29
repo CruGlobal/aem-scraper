@@ -27,24 +27,7 @@ public class JsonFileBuilderServiceImplTest {
 
     @Test
     public void testBuildSingleObjectFile() throws Exception {
-        List<String> tags = new ArrayList<>();
-        tags.add("tag1");
-        tags.add("tag2");
-
-        String url = "http://localhost:4503/content/app/us/en/category/article.html";
-        String title = "Some Content";
-        String description = "Some description";
-        String imageUrl = "http://localhost:4503/content/dam/app/image.png";
-        String publishedDate = "2020-05-30T15:46:03.720Z";
-
-        PageData pageData = new PageData()
-            .withHtmlBody("Lorem Ipsum...")
-            .withTags(tags)
-            .withTitle(title)
-            .withDescription(description)
-            .withImageUrl(imageUrl)
-            .withPublishedDate(publishedDate)
-            .withUrl(url);
+        PageData pageData = buildSinglePageData();
 
         Set<PageData> allData = new HashSet<>();
         allData.add(pageData);
@@ -55,15 +38,15 @@ public class JsonFileBuilderServiceImplTest {
 
         CloudSearchAddDocument onlyData = readData.next();
         assertThat(onlyData.getType(), is(equalTo("add")));
-        assertThat(onlyData.getId(), is(equalTo(url)));
+        assertThat(onlyData.getId(), is(equalTo(pageData.getUrl())));
 
         Map<String, String> fields = onlyData.getFields();
-        assertThat(fields.get("tags"), is(equalTo(Arrays.toString(tags.toArray()))));
-        assertThat(fields.get("title"), is(equalTo(title)));
-        assertThat(fields.get("description"), is(equalTo(description)));
-        assertThat(fields.get("image_url"), is(equalTo(imageUrl)));
-        assertThat(fields.get("published_date"), is(equalTo(publishedDate)));
-        assertThat(fields.get("path"), is(equalTo(url)));
+        assertThat(fields.get("tags"), is(equalTo(Arrays.toString(pageData.getTags().toArray()))));
+        assertThat(fields.get("title"), is(equalTo(pageData.getTitle())));
+        assertThat(fields.get("description"), is(equalTo(pageData.getDescription())));
+        assertThat(fields.get("image_url"), is(equalTo(pageData.getImageUrl())));
+        assertThat(fields.get("published_date"), is(equalTo(pageData.getPublishedDate())));
+        assertThat(fields.get("path"), is(equalTo(pageData.getUrl())));
     }
 
     @Test
@@ -107,8 +90,47 @@ public class JsonFileBuilderServiceImplTest {
         assertThat(numberOfDocuments, is(equalTo(2)));
     }
 
+    @Test
+    public void testManyDocuments() throws Exception {
+        Set<PageData> allData = new HashSet<>();
+
+        for (int i = 0; i < 14_000; i++) {
+            allData.add(buildSinglePageData());
+        }
+
+        jsonFileBuilderService.buildJsonFiles(allData, CloudSearchDocument.Type.ADD);
+
+        verifyAndReadFile();
+        verifyAndReadFile("./cloudsearch-data-1.json");
+    }
+
+    private PageData buildSinglePageData() {
+        List<String> tags = new ArrayList<>();
+        tags.add("tag1");
+        tags.add("tag2");
+
+        String url = "http://localhost:4503/content/app/us/en/category/article.html";
+        String title = "Some Content";
+        String description = "Some description";
+        String imageUrl = "http://localhost:4503/content/dam/app/image.png";
+        String publishedDate = "2020-05-30T15:46:03.720Z";
+
+        return new PageData()
+            .withHtmlBody("Lorem Ipsum...")
+            .withTags(tags)
+            .withTitle(title)
+            .withDescription(description)
+            .withImageUrl(imageUrl)
+            .withPublishedDate(publishedDate)
+            .withUrl(url);
+    }
+
     private MappingIterator<CloudSearchAddDocument> verifyAndReadFile() throws Exception {
-        File outputFile = new File("./cloudsearch-data.json");
+        return verifyAndReadFile("./cloudsearch-data.json");
+    }
+
+    private MappingIterator<CloudSearchAddDocument> verifyAndReadFile(final String fileName) throws Exception {
+        File outputFile = new File(fileName);
         assertThat(outputFile, is(not(nullValue())));
 
         ObjectReader objectReader = new ObjectMapper().readerFor(CloudSearchAddDocument.class);
