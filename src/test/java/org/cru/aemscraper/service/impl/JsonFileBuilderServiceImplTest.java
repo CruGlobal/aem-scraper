@@ -32,10 +32,18 @@ public class JsonFileBuilderServiceImplTest {
         tags.add("tag2");
 
         String url = "http://localhost:4503/content/app/us/en/category/article.html";
+        String title = "Some Content";
+        String description = "Some description";
+        String imageUrl = "http://localhost:4503/content/dam/app/image.png";
+        String publishedDate = "2020-05-30T15:46:03.720Z";
 
         PageData pageData = new PageData()
             .withHtmlBody("<html><head><title>Wee</title></head><body>Lorem Ipsum...</body></html>")
             .withTags(tags)
+            .withTitle(title)
+            .withDescription(description)
+            .withImageUrl(imageUrl)
+            .withPublishedDate(publishedDate)
             .withUrl(url);
 
         Set<PageData> allData = new HashSet<>();
@@ -51,6 +59,11 @@ public class JsonFileBuilderServiceImplTest {
 
         Map<String, String> fields = onlyData.getFields();
         assertThat(fields.get("tags"), is(equalTo(Arrays.toString(tags.toArray()))));
+        assertThat(fields.get("title"), is(equalTo(title)));
+        assertThat(fields.get("description"), is(equalTo(description)));
+        assertThat(fields.get("image_url"), is(equalTo(imageUrl)));
+        assertThat(fields.get("published_date"), is(equalTo(publishedDate)));
+        assertThat(fields.get("path"), is(equalTo(url)));
     }
 
     @Test
