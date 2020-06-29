@@ -11,6 +11,7 @@ public class PageData {
     private String title;
     private String description;
     private String imageUrl;
+    private String publishedDate;
 
     public String getUrl() {
         return url;
@@ -72,6 +73,15 @@ public class PageData {
 
     public PageData withImageUrl(final String imageUrl) {
         this.imageUrl = imageUrl;
+        return this;
+    }
+
+    public String getPublishedDate() {
+        return publishedDate;
+    }
+
+    public PageData withPublishedDate(final String publishedDate) {
+        this.publishedDate = publishedDate;
         return this;
     }
 

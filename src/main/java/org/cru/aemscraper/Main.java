@@ -146,7 +146,9 @@ public class Main {
             .withHtmlBody(htmlParserService.parsePage(pageEntity))
             .withContentScore(getContentScore(pageEntity))
             .withTitle(getBasicStringProperty(pageEntity, "dc:title"))
-            .withDescription(getBasicStringProperty(pageEntity, "dc:description"));
+            .withDescription(getBasicStringProperty(pageEntity, "dc:description"))
+            // Since this runs against the publisher, this should be fine
+            .withPublishedDate(getBasicStringProperty(pageEntity, "cq:lastModified"));
 
         if (runMode == RunMode.CLOUDSEARCH) {
             pageData = pageData.withImageUrl(getImageUrl(pageEntity));

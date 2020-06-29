@@ -131,6 +131,9 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
         if (data.getHtmlBody() != null) {
             fields.put("body", data.getHtmlBody());
         }
+        if (data.getPublishedDate() != null) {
+            fields.put("published_date", data.getPublishedDate());
+        }
         fields.put("path", data.getUrl());
         return fields;
     }
