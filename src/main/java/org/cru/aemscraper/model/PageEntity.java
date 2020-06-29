@@ -1,5 +1,6 @@
 package org.cru.aemscraper.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,9 @@ public class PageEntity
     private List<String> classType;
 
     private Map<String, Object> properties;
+
+    @JsonIgnore
+    private String canonicalUrl;
 
     public List<PageEntity> getChildren()
     {
@@ -62,6 +66,14 @@ public class PageEntity
     {
         this.properties = properties;
         return this;
+    }
+
+    public String getCanonicalUrl() {
+        return canonicalUrl;
+    }
+
+    public void setCanonicalUrl(final String canonicalUrl) {
+        this.canonicalUrl = canonicalUrl;
     }
 
     @Override

@@ -148,7 +148,8 @@ public class Main {
             .withTitle(getBasicStringProperty(pageEntity, "dc:title"))
             .withDescription(getBasicStringProperty(pageEntity, "dc:description"))
             // Since this runs against the publisher, this should be fine
-            .withPublishedDate(getBasicStringProperty(pageEntity, "cq:lastModified"));
+            .withPublishedDate(getBasicStringProperty(pageEntity, "cq:lastModified"))
+            .withUrl(pageEntity.getCanonicalUrl());
 
         if (runMode == RunMode.CLOUDSEARCH) {
             pageData = pageData.withImageUrl(getImageUrl(pageEntity));
