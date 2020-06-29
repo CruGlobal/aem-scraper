@@ -3,6 +3,7 @@ package org.cru.aemscraper.service.impl;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import jersey.repackaged.com.google.common.collect.Sets;
 import org.cru.aemscraper.model.CloudSearchAddDocument;
 import org.cru.aemscraper.model.CloudSearchDocument;
 import org.cru.aemscraper.model.PageData;
@@ -59,12 +60,14 @@ public class JsonFileBuilderServiceImplTest {
         PageData pageData = new PageData()
             .withHtmlBody("Lorem Ipsum...")
             .withTags(tags)
-            .withUrl(url1);
+            .withUrl(url1)
+            .withTemplate("CruOrgApp/components/page/article");
 
         String url2 = "http://localhost:4503/content/app/us/en/category/article2.html";
         PageData anotherPage = new PageData()
             .withHtmlBody("Foo Ipsum...")
-            .withUrl(url2);
+            .withUrl(url2)
+            .withTemplate("CruOrgApp/components/page/summermission");
 
         Set<PageData> allData = new HashSet<>();
         allData.add(pageData);
@@ -122,7 +125,8 @@ public class JsonFileBuilderServiceImplTest {
             .withDescription(description)
             .withImageUrl(imageUrl)
             .withPublishedDate(publishedDate)
-            .withUrl(url);
+            .withUrl(url)
+            .withTemplate("CruOrgApp/components/page/summermission");
     }
 
     private MappingIterator<CloudSearchAddDocument> verifyAndReadFile() throws Exception {
@@ -138,5 +142,21 @@ public class JsonFileBuilderServiceImplTest {
         assertThat(readData, is(not(nullValue())));
 
         return readData;
+    }
+
+    @Test
+    public void testRemoveUndesiredPages() {
+        String desiredTemplate = "/apps/myApp/components/page/editable/article";
+
+        PageData desiredPage = new PageData().withTemplate(desiredTemplate);
+        PageData undesiredPage = new PageData().withTemplate("/apps/myApp/components/page/sidebar");
+
+        Set<PageData> allPages = Sets.newHashSet(desiredPage, undesiredPage);
+        Set<PageData> expectedFiltered = Sets.newHashSet(desiredPage);
+
+        Set<String> desiredTemplates = Sets.newHashSet("/apps/myApp/components/page/editable/article");
+        Set<PageData> filtered = jsonFileBuilderService.removeUndesiredTemplates(allPages, desiredTemplates);
+
+        assertThat(expectedFiltered, is(equalTo(filtered)));
     }
 }

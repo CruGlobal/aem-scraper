@@ -3,6 +3,7 @@ package org.cru.aemscraper.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -23,6 +24,9 @@ public class PageEntity
 
     @JsonIgnore
     private String canonicalUrl;
+
+    @JsonIgnore
+    private JsonNode jcrContent;
 
     public List<PageEntity> getChildren()
     {
@@ -74,6 +78,14 @@ public class PageEntity
 
     public void setCanonicalUrl(final String canonicalUrl) {
         this.canonicalUrl = canonicalUrl;
+    }
+
+    public JsonNode getJcrContent() {
+        return jcrContent;
+    }
+
+    public void setJcrContent(final JsonNode jcrContent) {
+        this.jcrContent = jcrContent;
     }
 
     @Override

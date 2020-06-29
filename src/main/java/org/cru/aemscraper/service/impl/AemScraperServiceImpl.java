@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
+import org.cru.aemscraper.util.PageUtil;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -42,8 +43,10 @@ public class AemScraperServiceImpl implements AemScraperService {
                         }
                     }
                 }
+                PageUtil.populateJcrContent(child, client);
             }
         }
+        PageUtil.populateJcrContent(rootEntity, client);
         return rootEntity;
     }
 

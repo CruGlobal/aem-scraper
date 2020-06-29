@@ -1,7 +1,6 @@
 package org.cru.aemscraper;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cru.aemscraper.model.CloudSearchDocument;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
@@ -23,9 +22,7 @@ import software.amazon.awssdk.utils.StringUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -125,6 +122,8 @@ public class Main {
         CloudSearchDocument.Type type = CloudSearchDocument.Type.fromCode(args[1]);
         PageEntity rootEntity = aemScraperService.scrape(rootUrl);
         rootEntity = aemScraperService.removeNonPages(rootEntity);
+
+        PageUtil.populateJcrContent(rootEntity, client);
         LOG.debug(rootEntity.toString());
 
         client = ClientBuilder.newBuilder().build();
@@ -135,7 +134,7 @@ public class Main {
         jsonFileBuilderService.buildJsonFiles(ALL_PAGE_DATA, type);
     }
 
-    private static void parsePages(final PageEntity pageEntity, final RunMode runMode) throws IOException {
+    private static void parsePages(final PageEntity pageEntity, final RunMode runMode) {
         if (pageEntity.getChildren() != null) {
             for (PageEntity child : pageEntity.getChildren()) {
                 parsePages(child, runMode);
@@ -149,7 +148,8 @@ public class Main {
             .withDescription(getBasicStringProperty(pageEntity, "dc:description"))
             // Since this runs against the publisher, this should be fine
             .withPublishedDate(getBasicStringProperty(pageEntity, "cq:lastModified"))
-            .withUrl(pageEntity.getCanonicalUrl());
+            .withUrl(pageEntity.getCanonicalUrl())
+            .withTemplate(getTemplate(pageEntity));
 
         if (runMode == RunMode.CLOUDSEARCH) {
             pageData = pageData.withImageUrl(getImageUrl(pageEntity));
@@ -187,27 +187,30 @@ public class Main {
         return getProperty(pageProperties, key);
     }
 
-    static String getImageUrl(final PageEntity pageEntity) throws IOException {
-        String contentUrl = PageUtil.getContentUrl(pageEntity);
-
-        if (contentUrl != null && contentUrl.endsWith(".json")) {
-            Response response = client.target(contentUrl).request().get();
-            String contentJson = response.readEntity(String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readValue(contentJson, JsonNode.class);
-
-            if (jsonNode != null) {
-                JsonNode jcrContent = jsonNode.get("jcr:content");
-
-                if (jcrContent != null) {
-                    JsonNode imageNode = jcrContent.get("image");
-                    if (imageNode != null) {
-                        return imageNode.get("fileReference").asText();
-                    }
+    static String getImageUrl(final PageEntity pageEntity) {
+        JsonNode jcrContent = pageEntity.getJcrContent();
+        if (jcrContent != null) {
+            JsonNode imageNode = jcrContent.get("image");
+            if (imageNode != null) {
+                JsonNode fileReference = imageNode.get("fileReference");
+                if (fileReference != null) {
+                    return fileReference.asText();
                 }
             }
         }
         return null;
+    }
+
+    static String getTemplate(final PageEntity pageEntity) {
+        String template = null;
+        JsonNode jcrContent = pageEntity.getJcrContent();
+        if (jcrContent != null) {
+            JsonNode resourceTypeNode = jcrContent.get("sling:resourceType");
+            if (resourceTypeNode != null) {
+                template = resourceTypeNode.asText();
+            }
+        }
+        return template;
     }
 
     static String getProperty(final Set<Map.Entry<String, Object>> pageProperties, final String key) {

@@ -1,5 +1,7 @@
 package org.cru.aemscraper.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -12,6 +14,9 @@ public class PageData {
     private String description;
     private String imageUrl;
     private String publishedDate;
+
+    @JsonIgnore
+    private String template;
 
     public String getUrl() {
         return url;
@@ -82,6 +87,15 @@ public class PageData {
 
     public PageData withPublishedDate(final String publishedDate) {
         this.publishedDate = publishedDate;
+        return this;
+    }
+
+    public String getTemplate() {
+        return template;
+    }
+
+    public PageData withTemplate(final String template) {
+        this.template = template;
         return this;
     }
 

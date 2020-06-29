@@ -2,6 +2,7 @@ package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jersey.repackaged.com.google.common.collect.Lists;
+import jersey.repackaged.com.google.common.collect.Sets;
 import org.cru.aemscraper.model.CloudSearchAddDocument;
 import org.cru.aemscraper.model.CloudSearchDeleteDocument;
 import org.cru.aemscraper.model.CloudSearchDocument;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,9 +34,33 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     // Just under 5MB? but 1000 was 5.01MB according to IntelliJ and AWS can only handle batches of up to 5MB
     private static final Long FIVE_MB = (long) (5 * 1000 * 995);
 
+    private static final Set<String> DESIRED_TEMPLATES = Sets.newHashSet(
+        "CruOrgApp/components/page/summermission",
+        "CruOrgApp/components/page/article",
+        "CruOrgApp/components/page/article-long-form",
+        "CruOrgApp/components/page/content",
+        "CruOrgApp/components/page/daily-content",
+        "CruOrgApp/components/page/marketing-content",
+        "CruOrgApp/components/page/editable/landing-page",
+        "CruOrgApp/components/page/editable/videoplayer-page",
+        "JesusFilmApp/components/page/blogpost"
+    );
+
     @Override
     public void buildJsonFiles(final Set<PageData> pageData, final CloudSearchDocument.Type type) {
-        writeFiles(0, 0, Lists.newArrayList(pageData), type);
+        Set<PageData> filtered = removeUndesiredTemplates(pageData, DESIRED_TEMPLATES);
+        writeFiles(0, 0, Lists.newArrayList(filtered), type);
+    }
+
+    Set<PageData> removeUndesiredTemplates(final Set<PageData> pageData, final Set<String> desiredTemplates) {
+        Set<PageData> filtered = new HashSet<>();
+        for (PageData data : pageData) {
+            if (desiredTemplates.contains(data.getTemplate())) {
+                filtered.add(data);
+            }
+        }
+
+        return filtered;
     }
 
     private void writeFiles(
