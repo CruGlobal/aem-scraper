@@ -38,7 +38,7 @@ public class JsonFileBuilderServiceImplTest {
         String publishedDate = "2020-05-30T15:46:03.720Z";
 
         PageData pageData = new PageData()
-            .withHtmlBody("<html><head><title>Wee</title></head><body>Lorem Ipsum...</body></html>")
+            .withHtmlBody("Lorem Ipsum...")
             .withTags(tags)
             .withTitle(title)
             .withDescription(description)
@@ -74,13 +74,13 @@ public class JsonFileBuilderServiceImplTest {
 
         String url1 = "http://localhost:4503/content/app/us/en/category/article.html";
         PageData pageData = new PageData()
-            .withHtmlBody("<html><head><title>Wee</title></head><body>Lorem Ipsum...</body></html>")
+            .withHtmlBody("Lorem Ipsum...")
             .withTags(tags)
             .withUrl(url1);
 
         String url2 = "http://localhost:4503/content/app/us/en/category/article2.html";
         PageData anotherPage = new PageData()
-            .withHtmlBody("<html><head><title>Foo</title></head><body>Lorem Ipsum...</body></html>")
+            .withHtmlBody("Foo Ipsum...")
             .withUrl(url2);
 
         Set<PageData> allData = new HashSet<>();
