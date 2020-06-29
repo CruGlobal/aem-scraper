@@ -128,6 +128,10 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
         if (data.getImageUrl() != null) {
             fields.put("image_url", data.getImageUrl());
         }
+        if (data.getHtmlBody() != null) {
+            fields.put("body", data.getHtmlBody());
+        }
+        fields.put("path", data.getUrl());
         return fields;
     }
 }
