@@ -29,7 +29,8 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     private static final String START_ARRAY = "[";
     private static final String END_ARRAY = "]";
     private static final String DELIMITER = ",";
-    private static final Long FIVE_MB = (long) (5 * 1000 * 1000);
+    // Just under 5MB? but 1000 was 5.01MB according to IntelliJ and AWS can only handle batches of up to 5MB
+    private static final Long FIVE_MB = (long) (5 * 1000 * 995);
 
     @Override
     public void buildJsonFiles(final Set<PageData> pageData, final CloudSearchDocument.Type type) {
