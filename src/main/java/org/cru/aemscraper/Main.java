@@ -22,7 +22,10 @@ import software.amazon.awssdk.utils.StringUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.UriBuilder;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -134,7 +137,7 @@ public class Main {
         jsonFileBuilderService.buildJsonFiles(ALL_PAGE_DATA, type);
     }
 
-    private static void parsePages(final PageEntity pageEntity, final RunMode runMode) {
+    private static void parsePages(final PageEntity pageEntity, final RunMode runMode) throws URISyntaxException {
         if (pageEntity.getChildren() != null) {
             for (PageEntity child : pageEntity.getChildren()) {
                 parsePages(child, runMode);
@@ -187,18 +190,31 @@ public class Main {
         return getProperty(pageProperties, key);
     }
 
-    static String getImageUrl(final PageEntity pageEntity) {
+    static String getImageUrl(final PageEntity pageEntity) throws URISyntaxException {
         JsonNode jcrContent = pageEntity.getJcrContent();
         if (jcrContent != null) {
             JsonNode imageNode = jcrContent.get("image");
             if (imageNode != null) {
                 JsonNode fileReference = imageNode.get("fileReference");
-                if (fileReference != null) {
-                    return fileReference.asText();
+                if (fileReference != null && fileReference.asText() != null) {
+                    return buildImageUrl(fileReference.asText(), pageEntity);
                 }
             }
         }
         return null;
+    }
+
+    private static String buildImageUrl(final String imagePath, final PageEntity pageEntity) throws URISyntaxException {
+        String canonical = pageEntity.getCanonicalUrl();
+        if (canonical != null) {
+            URI canonicalUrl = new URI(pageEntity.getCanonicalUrl());
+            return UriBuilder.fromPath(imagePath)
+                .scheme(canonicalUrl.getScheme())
+                .host(canonicalUrl.getHost())
+                .port(canonicalUrl.getPort())
+                .build().toString();
+        }
+        return imagePath;
     }
 
     static String getTemplate(final PageEntity pageEntity) {

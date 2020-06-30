@@ -1,5 +1,7 @@
 package org.cru.aemscraper;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.cru.aemscraper.model.PageEntity;
 import org.junit.jupiter.api.Test;
 
@@ -39,5 +41,37 @@ public class MainTest {
 
         String score = Main.getContentScore(page);
         assertThat(score, is(equalTo("6")));
+    }
+
+    @Test
+    public void testGetImageUrlWithPort() throws Exception {
+        String canonicalUrl = "http://localhost:4503/us/en/page.html";
+        String expectedResult = "http://localhost:4503/content/dam/some/image.jpg";
+        testGetImageUrl(canonicalUrl, expectedResult);
+    }
+
+    @Test
+    public void testGetImageUrlWithoutPort() throws Exception {
+        String canonicalUrl = "https://app.com/us/en/page.html";
+        String expectedResult = "https://app.com/content/dam/some/image.jpg";
+        testGetImageUrl(canonicalUrl, expectedResult);
+    }
+
+    private void testGetImageUrl(final String canonicalUrl, final String expectedResult) throws Exception {
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        JsonNode jcrContent = nodeFactory.objectNode()
+            .set(
+                "image",
+                nodeFactory.objectNode()
+                    .put(
+                        "fileReference",
+                        "/content/dam/some/image.jpg")
+            );
+        PageEntity pageEntity = new PageEntity();
+        pageEntity.setJcrContent(jcrContent);
+        pageEntity.setCanonicalUrl(canonicalUrl);
+
+        String imageUrl = Main.getImageUrl(pageEntity);
+        assertThat(imageUrl, is(equalTo(expectedResult)));
     }
 }
