@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AemScraperServiceImpl implements AemScraperService {
-    private Client client;
+    private final Client client;
 
     public AemScraperServiceImpl() {
         this(ClientBuilder.newClient());
