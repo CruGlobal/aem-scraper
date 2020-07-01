@@ -74,4 +74,15 @@ public class MainTest {
         String imageUrl = Main.getImageUrl(pageEntity);
         assertThat(imageUrl, is(equalTo(expectedResult)));
     }
+
+    @Test
+    public void testGetDateProperty() {
+        String originalDate = "2015-09-27T17:34:24.007-04:00";
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("someDate", originalDate);
+        PageEntity pageEntity = new PageEntity().withProperties(properties);
+
+        String expectedDate = "2015-09-27T21:34:24.007Z";
+        assertThat(Main.getDateProperty(pageEntity, "someDate"), is(equalTo(expectedDate)));
+    }
 }

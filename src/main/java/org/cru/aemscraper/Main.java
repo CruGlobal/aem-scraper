@@ -27,6 +27,9 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -150,7 +153,7 @@ public class Main {
             .withTitle(getBasicStringProperty(pageEntity, "dc:title"))
             .withDescription(getBasicStringProperty(pageEntity, "dc:description"))
             // Since this runs against the publisher, this should be fine
-            .withPublishedDate(getBasicStringProperty(pageEntity, "cq:lastModified"))
+            .withPublishedDate(getDateProperty(pageEntity, "cq:lastModified"))
             .withUrl(pageEntity.getCanonicalUrl())
             .withTemplate(getTemplate(pageEntity));
 
@@ -179,6 +182,17 @@ public class Main {
             }
         }
         return "NONE";
+    }
+
+    static String getDateProperty(final PageEntity pageEntity, final String key) {
+        String dateString = getBasicStringProperty(pageEntity, key);
+        if (dateString == null) {
+            return null;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+        ZonedDateTime zoned = ZonedDateTime.from(formatter.parse(dateString)).withZoneSameInstant(ZoneId.of("UTC"));
+        return DateTimeFormatter.ISO_INSTANT.format(zoned);
     }
 
     static String getBasicStringProperty(final PageEntity pageEntity, final String key) {
