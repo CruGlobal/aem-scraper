@@ -1,6 +1,9 @@
 package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import jersey.repackaged.com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Sets;
 import org.cru.aemscraper.model.CloudSearchAddDocument;
@@ -33,6 +36,7 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     private static final String DELIMITER = ",";
     // Just under 5MB? but 1000 was 5.01MB according to IntelliJ and AWS can only handle batches of up to 5MB
     private static final Long FIVE_MB = (long) (5 * 1000 * 995);
+    private static final int ID_MAX_LENGTH = 128; // Maximum characters for IDs being sent to CloudSearch
 
     private static final Set<String> DESIRED_TEMPLATES = Sets.newHashSet(
         "CruOrgApp/components/page/summermission",
@@ -114,8 +118,27 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
                 throw new IllegalArgumentException("Illegal type " + type);
         }
 
-        cloudSearchDocument.setId(data.getUrl());
+        cloudSearchDocument.setId(hashIdIfNecessary(data.getUrl()));
         return cloudSearchDocument;
+    }
+
+    /**
+     * Turns the ID into an MD5 hash if it is longer than the maximum valid ID length.
+     */
+    private String hashIdIfNecessary(final String id) {
+        // Only hash IDs that are too long because of content that is already in CloudSearch with URL IDs.
+        if (id.length() > ID_MAX_LENGTH) {
+            return getMd5Hash(id);
+        }
+        return id;
+    }
+
+    private String getMd5Hash(String id) {
+        // We are using MD5 hashing already for this in AEM, so we should continue using it here for consistency.
+        @SuppressWarnings("deprecation")
+        HashFunction hashFunction = Hashing.md5();
+        HashCode hashCode = hashFunction.hashString(id, StandardCharsets.UTF_8);
+        return hashCode.toString();
     }
 
     private File buildFile(final int index) throws IOException {
