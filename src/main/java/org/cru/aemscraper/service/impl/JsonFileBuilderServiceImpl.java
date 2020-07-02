@@ -1,6 +1,7 @@
 package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -80,6 +81,9 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
                 ObjectMapper objectMapper = new ObjectMapper();
                 for (int i = dataIndex; i < pageData.size(); i++) {
                     PageData data = pageData.get(i);
+                    if (Strings.isNullOrEmpty(data.getUrl())) {
+                        continue;
+                    }
                     CloudSearchDocument cloudSearchDocument = buildDocument(type, data);
 
                     String json = objectMapper.writeValueAsString(cloudSearchDocument);
