@@ -7,6 +7,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import jersey.repackaged.com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Sets;
+import org.apache.commons.text.StringEscapeUtils;
 import org.cru.aemscraper.model.CloudSearchAddDocument;
 import org.cru.aemscraper.model.CloudSearchDeleteDocument;
 import org.cru.aemscraper.model.CloudSearchDocument;
@@ -183,7 +184,7 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
             fields.put("image_url", data.getImageUrl());
         }
         if (data.getHtmlBody() != null) {
-            fields.put("body", data.getHtmlBody());
+            fields.put("body", StringEscapeUtils.escapeXml11(data.getHtmlBody()));
         }
         if (data.getPublishedDate() != null) {
             fields.put("published_date", data.getPublishedDate());
