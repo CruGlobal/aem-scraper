@@ -2,6 +2,8 @@ package org.cru.aemscraper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import jersey.repackaged.com.google.common.collect.Lists;
+import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageEntity;
 import org.junit.jupiter.api.Test;
 
@@ -45,19 +47,21 @@ public class MainTest {
 
     @Test
     public void testGetImageUrlWithPort() throws Exception {
-        String canonicalUrl = "http://localhost:4503/us/en/page.html";
+        String nonCanonicalUrl = "http://localhost:4503/us/en/page.html";
         String expectedResult = "http://localhost:4503/content/dam/some/image.jpg";
-        testGetImageUrl(canonicalUrl, expectedResult);
+        testGetImageUrl(nonCanonicalUrl, expectedResult, false);
     }
 
     @Test
     public void testGetImageUrlWithoutPort() throws Exception {
         String canonicalUrl = "https://app.com/us/en/page.html";
         String expectedResult = "https://app.com/content/dam/some/image.jpg";
-        testGetImageUrl(canonicalUrl, expectedResult);
+        testGetImageUrl(canonicalUrl, expectedResult, true);
     }
 
-    private void testGetImageUrl(final String canonicalUrl, final String expectedResult) throws Exception {
+    private void testGetImageUrl(final String pageUrl, final String expectedResult, final boolean isCanonical)
+        throws Exception {
+
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         JsonNode jcrContent = nodeFactory.objectNode()
             .set(
@@ -69,10 +73,34 @@ public class MainTest {
             );
         PageEntity pageEntity = new PageEntity();
         pageEntity.setJcrContent(jcrContent);
+
+        if (isCanonical) {
+            pageEntity.setCanonicalUrl(pageUrl);
+        }
+
+        String imageUrl = Main.getImageUrl(pageEntity, pageUrl);
+        assertThat(imageUrl, is(equalTo(expectedResult)));
+    }
+
+    @Test
+    public void testDetermineUrlReturnsCanonicalUrl() {
+        String canonicalUrl = "https://some-site.org/page.html";
+        PageEntity pageEntity = new PageEntity();
         pageEntity.setCanonicalUrl(canonicalUrl);
 
-        String imageUrl = Main.getImageUrl(pageEntity);
-        assertThat(imageUrl, is(equalTo(expectedResult)));
+        assertThat(Main.determineUrl(pageEntity), is(equalTo(canonicalUrl)));
+    }
+
+    @Test
+    public void testDetermineUrlReturnsFallbackUrl() {
+        String contentUrl = "http://uatpub1.aws.cru.org:4503/content/cru/us/en/page.infinity.json";
+        String pageUrl = "http://uatpub1.aws.cru.org:4503/content/cru/us/en/page.html";
+        String canonicalUrl = "https://stage.cru.org/page.html";
+
+        Link contentLink = new Link().withRel(Lists.newArrayList("content")).withHref(contentUrl);
+        PageEntity pageEntity = new PageEntity().withLinks(Lists.newArrayList(contentLink));
+
+        assertThat(Main.determineUrl(pageEntity), is(equalTo(canonicalUrl)));
     }
 
     @Test

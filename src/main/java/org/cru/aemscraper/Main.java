@@ -1,6 +1,7 @@
 package org.cru.aemscraper;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Strings;
 import org.cru.aemscraper.model.CloudSearchDocument;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
@@ -31,6 +32,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +149,7 @@ public class Main {
             }
         }
 
+        String pageUrl = determineUrl(pageEntity);
         PageData pageData = new PageData()
             .withHtmlBody(htmlParserService.parsePage(pageEntity))
             .withContentScore(getContentScore(pageEntity))
@@ -154,11 +157,11 @@ public class Main {
             .withDescription(getBasicStringProperty(pageEntity, "dc:description"))
             // Since this runs against the publisher, this should be fine
             .withPublishedDate(getDateProperty(pageEntity, "cq:lastModified"))
-            .withUrl(pageEntity.getCanonicalUrl())
+            .withUrl(pageUrl)
             .withTemplate(getTemplate(pageEntity));
 
         if (runMode == RunMode.CLOUDSEARCH) {
-            pageData = pageData.withImageUrl(getImageUrl(pageEntity));
+            pageData = pageData.withImageUrl(getImageUrl(pageEntity, pageUrl));
         }
         ALL_PAGE_DATA.add(pageData);
     }
@@ -204,24 +207,23 @@ public class Main {
         return getProperty(pageProperties, key);
     }
 
-    static String getImageUrl(final PageEntity pageEntity) throws URISyntaxException {
+    static String getImageUrl(final PageEntity pageEntity, final String pageUrl) throws URISyntaxException {
         JsonNode jcrContent = pageEntity.getJcrContent();
         if (jcrContent != null) {
             JsonNode imageNode = jcrContent.get("image");
             if (imageNode != null) {
                 JsonNode fileReference = imageNode.get("fileReference");
                 if (fileReference != null && fileReference.asText() != null) {
-                    return buildImageUrl(fileReference.asText(), pageEntity);
+                    return buildImageUrl(fileReference.asText(), pageUrl);
                 }
             }
         }
         return null;
     }
 
-    private static String buildImageUrl(final String imagePath, final PageEntity pageEntity) throws URISyntaxException {
-        String canonical = pageEntity.getCanonicalUrl();
-        if (canonical != null) {
-            URI canonicalUrl = new URI(pageEntity.getCanonicalUrl());
+    private static String buildImageUrl(final String imagePath, final String pageUrl) throws URISyntaxException {
+        if (pageUrl != null) {
+            URI canonicalUrl = new URI(pageUrl);
             return UriBuilder.fromPath(imagePath)
                 .scheme(canonicalUrl.getScheme())
                 .host(canonicalUrl.getHost())
@@ -229,6 +231,34 @@ public class Main {
                 .build().toString();
         }
         return imagePath;
+    }
+
+    static String determineUrl(final PageEntity pageEntity) {
+        if (!Strings.isNullOrEmpty(pageEntity.getCanonicalUrl())) {
+            return pageEntity.getCanonicalUrl();
+        }
+
+        Map<String, String> externalizerMap = new HashMap<>();
+        externalizerMap.put("http://uatpub1.aws.cru.org:4503/content/jf/us/en", "https://stage.jesusfilm.org");
+        externalizerMap.put("http://uatpub2.aws.cru.org:4503/content/jf/us/en", "https://stage.jesusfilm.org");
+        externalizerMap.put("http://prodpub1.aws.cru.org:4503/content/jf/us/en", "https://jesusfilm.org");
+        externalizerMap.put("http://prodpub2.aws.cru.org:4503/content/jf/us/en", "https://jesusfilm.org");
+        externalizerMap.put("http://uatpub1.aws.cru.org:4503/content/cru/us/en", "https://stage.cru.org");
+        externalizerMap.put("http://uatpub2.aws.cru.org:4503/content/cru/us/en", "https://stage.cru.org");
+        externalizerMap.put("http://prodpub1.aws.cru.org:4503/content/cru/us/en", "https://www.cru.org");
+        externalizerMap.put("http://prodpub2.aws.cru.org:4503/content/cru/us/en", "https://www.cru.org");
+
+        String contentUrl = PageUtil.getContentUrl(pageEntity);
+        if (contentUrl == null) {
+            return null;
+        }
+        contentUrl = contentUrl.replace(".infinity.json", ".html");
+        for (Map.Entry<String, String> entry : externalizerMap.entrySet()) {
+            if (contentUrl.startsWith(entry.getKey())) {
+                return contentUrl.replace(entry.getKey(), entry.getValue());
+            }
+        }
+        return null;
     }
 
     static String getTemplate(final PageEntity pageEntity) {
