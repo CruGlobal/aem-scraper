@@ -154,9 +154,23 @@ public class JsonFileBuilderServiceImplTest {
         Set<PageData> allPages = Sets.newHashSet(desiredPage, undesiredPage);
         Set<PageData> expectedFiltered = Sets.newHashSet(desiredPage);
 
-        Set<String> desiredTemplates = Sets.newHashSet("/apps/myApp/components/page/editable/article");
+        Set<String> desiredTemplates = Sets.newHashSet(desiredTemplate);
         Set<PageData> filtered = jsonFileBuilderService.removeUndesiredTemplates(allPages, desiredTemplates);
 
+        assertThat(expectedFiltered, is(equalTo(filtered)));
+    }
+
+    @Test
+    public void testFilterExcludedFromSearch() {
+        String desiredTemplate = "CruOrgApp/components/page/summermission";
+
+        PageData desiredPage = new PageData().withTemplate(desiredTemplate).shouldExcludeFromSearch(false);
+        PageData undesiredPage = new PageData().withTemplate(desiredTemplate).shouldExcludeFromSearch(true);
+
+        Set<PageData> allPages = Sets.newHashSet(desiredPage, undesiredPage);
+        Set<PageData> expectedFiltered = Sets.newHashSet(desiredPage);
+
+        Set<PageData> filtered = jsonFileBuilderService.filterPages(allPages);
         assertThat(expectedFiltered, is(equalTo(filtered)));
     }
 }

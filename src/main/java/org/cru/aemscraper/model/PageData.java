@@ -15,8 +15,11 @@ public class PageData {
     private String imageUrl;
     private String publishedDate;
 
+
     @JsonIgnore
     private String template;
+    @JsonIgnore
+    private boolean excludeFromSearch;
 
     public String getUrl() {
         return url;
@@ -99,6 +102,15 @@ public class PageData {
         return this;
     }
 
+    public boolean shouldExcludeFromSearch() {
+        return excludeFromSearch;
+    }
+
+    public PageData shouldExcludeFromSearch(final boolean excludeFromSearch) {
+        this.excludeFromSearch = excludeFromSearch;
+        return this;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         boolean equals = super.equals(obj);
@@ -114,7 +126,10 @@ public class PageData {
                 && Objects.equals(getTags(), other.getTags())
                 && Objects.equals(getTitle(), other.getTitle())
                 && Objects.equals(getDescription(), other.getDescription())
-                && Objects.equals(getImageUrl(), other.getImageUrl());
+                && Objects.equals(getImageUrl(), other.getImageUrl())
+                && Objects.equals(getPublishedDate(), other.getPublishedDate())
+                && Objects.equals(getTemplate(), other.getTemplate())
+                && Objects.equals(shouldExcludeFromSearch(), other.shouldExcludeFromSearch());
         }
         return false;
     }

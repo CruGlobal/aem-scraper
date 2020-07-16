@@ -158,7 +158,8 @@ public class Main {
             // Since this runs against the publisher, this should be fine
             .withPublishedDate(getDateProperty(pageEntity, "cq:lastModified"))
             .withUrl(pageUrl)
-            .withTemplate(getTemplate(pageEntity));
+            .withTemplate(getTemplate(pageEntity))
+            .shouldExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"));
 
         if (runMode == RunMode.CLOUDSEARCH) {
             pageData = pageData.withImageUrl(getImageUrl(pageEntity, pageUrl));
@@ -205,6 +206,20 @@ public class Main {
 
         Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
         return getProperty(pageProperties, key);
+    }
+
+    static boolean getBooleanProperty(final PageEntity pageEntity, final String key) {
+        if (pageEntity.getProperties() == null) {
+            return false;
+        }
+
+        Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
+        for (Map.Entry<String, Object> property : pageProperties) {
+            if (property.getKey().equals(key)) {
+                return (Boolean) property.getValue();
+            }
+        }
+        return false;
     }
 
     static String getImageUrl(final PageEntity pageEntity, final String pageUrl) throws URISyntaxException {

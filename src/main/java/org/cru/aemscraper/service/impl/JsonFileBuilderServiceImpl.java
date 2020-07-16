@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     private static final Logger LOG = LoggerFactory.getLogger(JsonFileBuilderServiceImpl.class);
@@ -54,8 +55,15 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
 
     @Override
     public void buildJsonFiles(final Set<PageData> pageData, final CloudSearchDocument.Type type) {
-        Set<PageData> filtered = removeUndesiredTemplates(pageData, DESIRED_TEMPLATES);
+        Set<PageData> filtered = filterPages(pageData);
         writeFiles(0, 0, Lists.newArrayList(filtered), type);
+    }
+
+    Set<PageData> filterPages(final Set<PageData> pageData) {
+        return removeUndesiredTemplates(pageData, DESIRED_TEMPLATES)
+            .stream()
+            .filter(page -> !page.shouldExcludeFromSearch())
+            .collect(Collectors.toSet());
     }
 
     Set<PageData> removeUndesiredTemplates(final Set<PageData> pageData, final Set<String> desiredTemplates) {
