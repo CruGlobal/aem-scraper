@@ -50,7 +50,7 @@ Specifically, the use case for this run mode is to put the data into a set of `.
 into Amazon CloudSearch. The upload happens using the CloudSearch UI in AWS, not programmatically here in this app.
 These json files will be batches of 5 MB or less.
 
-Specify the `type` property to tell CloudSearch whether these are add or delete requests. 
+The second argument should be the type to tell CloudSearch whether these are add or delete requests. 
 Valid values are `ADD` and `DELETE`.
 
 ##### Example 
