@@ -4,3 +4,4 @@ target/
 .DS_Store
 data.csv
 *.log
+*.json

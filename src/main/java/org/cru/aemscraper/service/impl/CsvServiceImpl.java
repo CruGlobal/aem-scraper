@@ -2,6 +2,7 @@ package org.cru.aemscraper.service.impl;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.service.CsvService;
 
 import java.io.BufferedWriter;
@@ -11,18 +12,18 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.Set;
 
 public class CsvServiceImpl implements CsvService {
     public static final String CSV_FILE = "./data.csv";
     @Override
-    public File createCsvFile(final Map<String, String> pageData) throws IOException {
+    public File createCsvFile(final Set<PageData> allPageData) throws IOException {
         BufferedWriter writer = Files.newBufferedWriter(Paths.get(CSV_FILE));
         CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
 
-        for (Map.Entry<String, String> entry : pageData.entrySet()) {
-            if (!entry.getKey().isEmpty()) {
-                csvPrinter.printRecord(entry.getValue(), entry.getKey());
+        for (PageData entry : allPageData) {
+            if (!entry.getHtmlBody().isEmpty()) {
+                csvPrinter.printRecord(entry.getContentScore(), entry.getHtmlBody());
             }
         }
 
@@ -33,13 +34,13 @@ public class CsvServiceImpl implements CsvService {
     }
 
     @Override
-    public byte[] createCsvBytes(final Map<String, String> pageData) throws IOException {
+    public byte[] createCsvBytes(final Set<PageData> pageData) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
         CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
 
-        for (Map.Entry<String, String> entry : pageData.entrySet()) {
-            csvPrinter.printRecord(entry.getValue(), entry.getKey());
+        for (PageData entry : pageData) {
+            csvPrinter.printRecord(entry.getContentScore(), entry.getHtmlBody());
         }
 
         csvPrinter.flush();
