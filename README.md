@@ -54,4 +54,4 @@ Specify the `type` property to tell CloudSearch whether these are add or delete 
 Valid values are `ADD` and `DELETE`.
 
 ##### Example 
-`java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> -Dtype=ADD -DrunMode=cloudsearch`
+`java -jar -DrunMode=cloudsearch aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> ADD`
