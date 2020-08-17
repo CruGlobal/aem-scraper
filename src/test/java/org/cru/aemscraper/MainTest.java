@@ -94,8 +94,7 @@ public class MainTest {
     @Test
     public void testDetermineUrlReturnsFallbackUrl() {
         String contentUrl = "http://uatpub1.aws.cru.org:4503/content/cru/us/en/page.infinity.json";
-        String pageUrl = "http://uatpub1.aws.cru.org:4503/content/cru/us/en/page.html";
-        String canonicalUrl = "https://stage.cru.org/page.html";
+        String canonicalUrl = "https://stage.cru.org/us/en/page.html";
 
         Link contentLink = new Link().withRel(Lists.newArrayList("content")).withHref(contentUrl);
         PageEntity pageEntity = new PageEntity().withLinks(Lists.newArrayList(contentLink));

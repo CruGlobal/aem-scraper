@@ -258,10 +258,10 @@ public class Main {
         externalizerMap.put("http://uatpub2.aws.cru.org:4503/content/jf/us/en", "https://stage.jesusfilm.org");
         externalizerMap.put("http://prodpub1.aws.cru.org:4503/content/jf/us/en", "https://jesusfilm.org");
         externalizerMap.put("http://prodpub2.aws.cru.org:4503/content/jf/us/en", "https://jesusfilm.org");
-        externalizerMap.put("http://uatpub1.aws.cru.org:4503/content/cru/us/en", "https://stage.cru.org");
-        externalizerMap.put("http://uatpub2.aws.cru.org:4503/content/cru/us/en", "https://stage.cru.org");
-        externalizerMap.put("http://prodpub1.aws.cru.org:4503/content/cru/us/en", "https://www.cru.org");
-        externalizerMap.put("http://prodpub2.aws.cru.org:4503/content/cru/us/en", "https://www.cru.org");
+        externalizerMap.put("http://uatpub1.aws.cru.org:4503/content/cru/us/en", "https://stage.cru.org/us/en");
+        externalizerMap.put("http://uatpub2.aws.cru.org:4503/content/cru/us/en", "https://stage.cru.org/us/en");
+        externalizerMap.put("http://prodpub1.aws.cru.org:4503/content/cru/us/en", "https://www.cru.org/us/en");
+        externalizerMap.put("http://prodpub2.aws.cru.org:4503/content/cru/us/en", "https://www.cru.org/us/en");
 
         String contentUrl = PageUtil.getContentUrl(pageEntity);
         if (contentUrl == null) {
