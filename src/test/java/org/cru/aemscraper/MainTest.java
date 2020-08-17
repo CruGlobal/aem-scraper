@@ -43,6 +43,7 @@ public class MainTest {
 
         String score = Main.getContentScore(page);
         assertThat(score, is(equalTo("6")));
+
     }
 
     @Test

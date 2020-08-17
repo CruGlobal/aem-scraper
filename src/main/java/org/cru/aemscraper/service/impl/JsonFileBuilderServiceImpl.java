@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +51,8 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
         "CruOrgApp/components/page/editable/videoplayer-page",
         "JesusFilmApp/components/page/blogpost"
     );
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void buildJsonFiles(final Set<PageData> pageData, final CloudSearchDocument.Type type) {
@@ -87,7 +88,6 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
             File file = buildFile(fileIndex);
             try (BufferedWriter bufferedWriter = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
                 bufferedWriter.write(START_ARRAY);
-                ObjectMapper objectMapper = new ObjectMapper();
                 for (int i = dataIndex; i < pageData.size(); i++) {
                     PageData data = pageData.get(i);
                     if (Strings.isNullOrEmpty(data.getUrl())) {
@@ -177,19 +177,19 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
             + END_ARRAY.getBytes(StandardCharsets.UTF_8).length < FIVE_MB;
     }
 
-    private Map<String, String> buildFieldsFromData(final PageData data) {
-        Map<String, String> fields = new HashMap<>();
+    private Map<String, Object> buildFieldsFromData(final PageData data) {
+        Map<String, Object> fields = new HashMap<>();
         if (data.getTags() != null) {
-            fields.put("tags", Arrays.toString(data.getTags().toArray()));
+            fields.put("tags", data.getTags());
         }
         if (data.getTitle() != null) {
             fields.put("title", data.getTitle());
         }
         if (data.getDescription() != null) {
             fields.put("description", data.getDescription());
-            fields.put("has_description", "1");
+            fields.put("has_description", 1);
         } else {
-            fields.put("has_description", "0");
+            fields.put("has_description", 0);
         }
         if (data.getImageUrl() != null) {
             fields.put("image_url", data.getImageUrl());

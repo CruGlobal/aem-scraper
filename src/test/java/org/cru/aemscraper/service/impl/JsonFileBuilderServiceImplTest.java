@@ -41,8 +41,8 @@ public class JsonFileBuilderServiceImplTest {
         assertThat(onlyData.getType(), is(equalTo("add")));
         assertThat(onlyData.getId(), is(equalTo(pageData.getUrl())));
 
-        Map<String, String> fields = onlyData.getFields();
-        assertThat(fields.get("tags"), is(equalTo(Arrays.toString(pageData.getTags().toArray()))));
+        Map<String, Object> fields = onlyData.getFields();
+        assertThat(fields.get("tags"), is(equalTo(pageData.getTags())));
         assertThat(fields.get("title"), is(equalTo(pageData.getTitle())));
         assertThat(fields.get("description"), is(equalTo(pageData.getDescription())));
         assertThat(fields.get("image_url"), is(equalTo(pageData.getImageUrl())));
@@ -83,9 +83,9 @@ public class JsonFileBuilderServiceImplTest {
             CloudSearchAddDocument document = readData.next();
             assertThat(document.getType(), is(equalTo("add")));
 
-            Map<String, String> fields = document.getFields();
+            Map<String, Object> fields = document.getFields();
             if (document.getId().equals(url1)) {
-                assertThat(fields.get("tags"), is(equalTo(Arrays.toString(tags.toArray()))));
+                assertThat(fields.get("tags"), is(equalTo(tags)));
             } else if (document.getId().equals(url2)) {
                 assertThat(fields.get("tags"), is(nullValue()));
             }
