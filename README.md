@@ -12,8 +12,8 @@ Maven Projects > Execute Maven Goal > clean install
 Run > Edit Configurations
 
 Add a JAR Application
-  * Select the `aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar`
-  * Under Program Arguments, put the full URL to the top level JSON file of the tree you wish to traverse
+  * Select the `aem-scraper-2.0-SNAPSHOT-jar-with-dependencies.jar`
+  * Under Program Arguments, put the full URL to the top level JSON file of the tree you wish to traverse as well as other arguments that don't start with `-D`. If you are using the cloudsearch functionality of this program, you will also need to add basic authentication here.
   * Under VM Options, add the `-D` arguments described below (e.g. `-DrunMode=cloudsearch`)
   
 ### Command Line
@@ -54,5 +54,7 @@ These json files will be batches of 5 MB or less.
 The second argument should be the type to tell CloudSearch whether these are add or delete requests. 
 Valid values are `ADD` and `DELETE`.
 
+You also need to add basic authentication for the server you are trying to scrape.
+
 ##### Example 
-`java -jar -DrunMode=cloudsearch aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> ADD`
+`java -jar -DrunMode=cloudsearch aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> ADD -u username:password`
