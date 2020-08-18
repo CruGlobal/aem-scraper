@@ -27,7 +27,7 @@ public abstract class CloudSearchDocument {
     }
 
     private String id;
-    private Map<String, String> fields;
+    private Map<String, Object> fields;
 
     public abstract String getType();
 
@@ -39,11 +39,11 @@ public abstract class CloudSearchDocument {
         this.id = id;
     }
 
-    public Map<String, String> getFields() {
+    public Map<String, Object> getFields() {
         return fields;
     }
 
-    public void setFields(final Map<String, String> fields) {
+    public void setFields(final Map<String, Object> fields) {
         this.fields = fields;
     }
 }

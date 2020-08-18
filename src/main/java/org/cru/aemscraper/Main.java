@@ -159,7 +159,8 @@ public class Main {
             .withPublishedDate(getDateProperty(pageEntity, "cq:lastModified"))
             .withUrl(pageUrl)
             .withTemplate(getTemplate(pageEntity))
-            .shouldExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"));
+            .shouldExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"))
+            .withTags(getTags(pageEntity.getProperties().entrySet()));
 
         if (runMode == RunMode.CLOUDSEARCH) {
             pageData = pageData.withImageUrl(getImageUrl(pageEntity, pageUrl));
