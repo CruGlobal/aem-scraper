@@ -14,6 +14,7 @@ Run > Edit Configurations
 Add a JAR Application
   * Select the `aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar`
   * Under Program Arguments, put the full URL to the top level JSON file of the tree you wish to traverse
+  * Under VM Options, add the `-D` arguments described below (e.g. `-DrunMode=cloudsearch`)
   
 ### Command Line
 `mvn clean install`
