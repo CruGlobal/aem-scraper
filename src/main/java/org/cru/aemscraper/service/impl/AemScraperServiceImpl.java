@@ -2,6 +2,7 @@ package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cru.aemscraper.model.Link;
+import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.util.PageUtil;
@@ -11,7 +12,9 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AemScraperServiceImpl implements AemScraperService {
     private final Client client;
@@ -72,6 +75,18 @@ public class AemScraperServiceImpl implements AemScraperService {
                 }
             }
         }
+        return filtered;
+    }
+
+    @Override
+    public Set<PageData> removeUndesiredTemplates(final Set<PageData> pageData, final Set<String> desiredTemplates) {
+        Set<PageData> filtered = new HashSet<>();
+        for (PageData data : pageData) {
+            if (desiredTemplates.contains(data.getTemplate())) {
+                filtered.add(data);
+            }
+        }
+
         return filtered;
     }
 

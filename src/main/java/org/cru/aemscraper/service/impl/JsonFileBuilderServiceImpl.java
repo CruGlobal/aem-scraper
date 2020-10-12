@@ -6,7 +6,6 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import jersey.repackaged.com.google.common.collect.Lists;
-import jersey.repackaged.com.google.common.collect.Sets;
 import org.apache.commons.text.StringEscapeUtils;
 import org.cru.aemscraper.model.CloudSearchAddDocument;
 import org.cru.aemscraper.model.CloudSearchDeleteDocument;
@@ -22,7 +21,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,18 +38,6 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     private static final Long FIVE_MB = (long) (5 * 1000 * 995);
     private static final int ID_MAX_LENGTH = 128; // Maximum characters for IDs being sent to CloudSearch
 
-    private static final Set<String> DESIRED_TEMPLATES = Sets.newHashSet(
-        "CruOrgApp/components/page/summermission",
-        "CruOrgApp/components/page/article",
-        "CruOrgApp/components/page/article-long-form",
-        "CruOrgApp/components/page/content",
-        "CruOrgApp/components/page/daily-content",
-        "CruOrgApp/components/page/marketing-content",
-        "CruOrgApp/components/page/editable/landing-page",
-        "CruOrgApp/components/page/editable/videoplayer-page",
-        "JesusFilmApp/components/page/blogpost"
-    );
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -61,21 +47,10 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     }
 
     Set<PageData> filterPages(final Set<PageData> pageData) {
-        return removeUndesiredTemplates(pageData, DESIRED_TEMPLATES)
+        return pageData
             .stream()
             .filter(page -> !page.shouldExcludeFromSearch())
             .collect(Collectors.toSet());
-    }
-
-    Set<PageData> removeUndesiredTemplates(final Set<PageData> pageData, final Set<String> desiredTemplates) {
-        Set<PageData> filtered = new HashSet<>();
-        for (PageData data : pageData) {
-            if (desiredTemplates.contains(data.getTemplate())) {
-                filtered.add(data);
-            }
-        }
-
-        return filtered;
     }
 
     private void writeFiles(

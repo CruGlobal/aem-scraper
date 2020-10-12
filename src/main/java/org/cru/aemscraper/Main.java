@@ -2,6 +2,7 @@ package org.cru.aemscraper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import org.cru.aemscraper.model.CloudSearchDocument;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
@@ -106,15 +107,24 @@ public class Main {
             LOG.debug(rootEntity.toString());
 
             parsePages(rootEntity, RunMode.S3);
+            Set<String> desiredTemplates = ImmutableSet.of(
+                "CruOrgApp/components/page/article",
+                "CruOrgApp/components/page/article-long-form",
+                "CruOrgApp/components/page/daily-content",
+                "CruOrgApp/components/page/editable/article",
+                "CruOrgApp/components/page/summermission",
+                "CruOrgApp/components/page/internationalinternship"
+            );
+            Set<PageData> filteredData = aemScraperService.removeUndesiredTemplates(ALL_PAGE_DATA, desiredTemplates);
 
             if (type.equals("file")) {
-                File csvFile = csvService.createCsvFile(ALL_PAGE_DATA);
+                File csvFile = csvService.createCsvFile(filteredData);
 
                 if (!onlyBuildCsv) {
                     s3Service.sendCsvToS3(csvFile);
                 }
             } else if (type.equals("bytes")) {
-                byte[] csvBytes = csvService.createCsvBytes(ALL_PAGE_DATA);
+                byte[] csvBytes = csvService.createCsvBytes(filteredData);
 
                 if (!onlyBuildCsv) {
                     s3Service.sendCsvBytesToS3(csvBytes);
@@ -138,8 +148,21 @@ public class Main {
 
         parsePages(rootEntity, RunMode.CLOUDSEARCH);
 
+        Set<String> desiredTemplates = ImmutableSet.of(
+            "CruOrgApp/components/page/summermission",
+            "CruOrgApp/components/page/article",
+            "CruOrgApp/components/page/article-long-form",
+            "CruOrgApp/components/page/content",
+            "CruOrgApp/components/page/daily-content",
+            "CruOrgApp/components/page/marketing-content",
+            "CruOrgApp/components/page/editable/landing-page",
+            "CruOrgApp/components/page/editable/videoplayer-page",
+            "JesusFilmApp/components/page/blogpost"
+        );
+        Set<PageData> filteredPages = aemScraperService.removeUndesiredTemplates(ALL_PAGE_DATA, desiredTemplates);
+
         JsonFileBuilderService jsonFileBuilderService = new JsonFileBuilderServiceImpl();
-        jsonFileBuilderService.buildJsonFiles(ALL_PAGE_DATA, type);
+        jsonFileBuilderService.buildJsonFiles(filteredPages, type);
     }
 
     private static void parsePages(final PageEntity pageEntity, final RunMode runMode) throws URISyntaxException {
