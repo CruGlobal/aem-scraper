@@ -217,7 +217,11 @@ public class Main {
         Set<Map.Entry<String, Object>> pageProperties = pageEntity.getProperties().entrySet();
         for (Map.Entry<String, Object> property : pageProperties) {
             if (property.getKey().equals(key)) {
-                return (Boolean) property.getValue();
+                if (property.getValue() instanceof Boolean) {
+                    return (Boolean) property.getValue();
+                } else {
+                    return Boolean.parseBoolean((String) property.getValue());
+                }
             }
         }
         return false;
