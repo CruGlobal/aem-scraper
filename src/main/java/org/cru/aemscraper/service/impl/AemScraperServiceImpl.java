@@ -6,6 +6,7 @@ import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.util.PageUtil;
+import org.cru.aemscraper.util.Template;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -79,10 +80,10 @@ public class AemScraperServiceImpl implements AemScraperService {
     }
 
     @Override
-    public Set<PageData> removeUndesiredTemplates(final Set<PageData> pageData, final Set<String> desiredTemplates) {
+    public Set<PageData> removeUndesiredTemplates(final Set<PageData> pageData, final Set<Template> desiredTemplates) {
         Set<PageData> filtered = new HashSet<>();
         for (PageData data : pageData) {
-            if (desiredTemplates.contains(data.getTemplate())) {
+            if (desiredTemplates.contains(Template.of(data.getTemplate()))) {
                 filtered.add(data);
             }
         }

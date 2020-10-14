@@ -7,6 +7,7 @@ import jersey.repackaged.com.google.common.collect.Sets;
 import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
+import org.cru.aemscraper.util.Template;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.cru.aemscraper.util.Template.CONTENT;
+import static org.cru.aemscraper.util.Template.DYNAMIC_ARTICLE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
@@ -305,15 +308,15 @@ class AemScraperServiceImplTest {
 
     @Test
     public void testRemoveUndesiredPages() {
-        String desiredTemplate = "/apps/myApp/components/page/editable/article";
+        Template desiredTemplate = DYNAMIC_ARTICLE;
 
-        PageData desiredPage = new PageData().withTemplate(desiredTemplate);
-        PageData undesiredPage = new PageData().withTemplate("/apps/myApp/components/page/sidebar");
+        PageData desiredPage = new PageData().withTemplate(desiredTemplate.getPath());
+        PageData undesiredPage = new PageData().withTemplate(CONTENT.getPath());
 
         Set<PageData> allPages = Sets.newHashSet(desiredPage, undesiredPage);
         Set<PageData> expectedFiltered = Sets.newHashSet(desiredPage);
 
-        Set<String> desiredTemplates = Sets.newHashSet(desiredTemplate);
+        Set<Template> desiredTemplates = Sets.newHashSet(desiredTemplate);
         Set<PageData> filtered = aemScraperService.removeUndesiredTemplates(allPages, desiredTemplates);
 
         assertThat(expectedFiltered, is(equalTo(filtered)));

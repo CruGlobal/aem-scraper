@@ -18,6 +18,7 @@ import org.cru.aemscraper.service.impl.PageParsingServiceImpl;
 import org.cru.aemscraper.service.impl.S3ServiceImpl;
 import org.cru.aemscraper.util.PageUtil;
 import org.cru.aemscraper.util.RunMode;
+import org.cru.aemscraper.util.Template;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.utils.StringUtils;
@@ -28,6 +29,18 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.cru.aemscraper.util.Template.ARTICLE_LONG_FORM;
+import static org.cru.aemscraper.util.Template.BLOG_POST;
+import static org.cru.aemscraper.util.Template.CONTENT;
+import static org.cru.aemscraper.util.Template.DAILY_CONTENT;
+import static org.cru.aemscraper.util.Template.DYNAMIC_ARTICLE;
+import static org.cru.aemscraper.util.Template.INTERNATIONAL_INTERNSHIP;
+import static org.cru.aemscraper.util.Template.LANDING;
+import static org.cru.aemscraper.util.Template.MARKETING_CONTENT;
+import static org.cru.aemscraper.util.Template.STATIC_ARTICLE;
+import static org.cru.aemscraper.util.Template.SUMMER_MISSION;
+import static org.cru.aemscraper.util.Template.VIDEO_PLAYER;
 
 public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -98,13 +111,13 @@ public class Main {
             LOG.debug(rootEntity.toString());
 
             pageParsingService.parsePages(rootEntity, RunMode.S3, ALL_PAGE_DATA);
-            Set<String> desiredTemplates = ImmutableSet.of(
-                "CruOrgApp/components/page/article",
-                "CruOrgApp/components/page/article-long-form",
-                "CruOrgApp/components/page/daily-content",
-                "CruOrgApp/components/page/editable/article",
-                "CruOrgApp/components/page/summermission",
-                "CruOrgApp/components/page/internationalinternship"
+            Set<Template> desiredTemplates = ImmutableSet.of(
+                STATIC_ARTICLE,
+                ARTICLE_LONG_FORM,
+                DAILY_CONTENT,
+                DYNAMIC_ARTICLE,
+                SUMMER_MISSION,
+                INTERNATIONAL_INTERNSHIP
             );
             Set<PageData> filteredData = aemScraperService.removeUndesiredTemplates(ALL_PAGE_DATA, desiredTemplates);
 
@@ -139,16 +152,16 @@ public class Main {
 
         pageParsingService.parsePages(rootEntity, RunMode.CLOUDSEARCH, ALL_PAGE_DATA);
 
-        Set<String> desiredTemplates = ImmutableSet.of(
-            "CruOrgApp/components/page/summermission",
-            "CruOrgApp/components/page/article",
-            "CruOrgApp/components/page/article-long-form",
-            "CruOrgApp/components/page/content",
-            "CruOrgApp/components/page/daily-content",
-            "CruOrgApp/components/page/marketing-content",
-            "CruOrgApp/components/page/editable/landing-page",
-            "CruOrgApp/components/page/editable/videoplayer-page",
-            "JesusFilmApp/components/page/blogpost"
+        Set<Template> desiredTemplates = ImmutableSet.of(
+            SUMMER_MISSION,
+            STATIC_ARTICLE,
+            ARTICLE_LONG_FORM,
+            CONTENT,
+            DAILY_CONTENT,
+            MARKETING_CONTENT,
+            LANDING,
+            VIDEO_PLAYER,
+            BLOG_POST
         );
         Set<PageData> filteredPages = aemScraperService.removeUndesiredTemplates(ALL_PAGE_DATA, desiredTemplates);
 
