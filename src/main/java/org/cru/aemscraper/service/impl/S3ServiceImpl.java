@@ -49,7 +49,7 @@ public class S3ServiceImpl implements S3Service {
     private void initClient() {
         s3Client = S3Client.builder()
             .region(REGION)
-            .credentialsProvider(ProfileCredentialsProvider.create("research"))
+            .credentialsProvider(ProfileCredentialsProvider.create("default"))
             .build();
     }
 
