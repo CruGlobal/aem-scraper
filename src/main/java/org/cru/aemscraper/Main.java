@@ -110,7 +110,7 @@ public class Main {
             rootEntity = aemScraperService.removeNonPages(rootEntity);
             LOG.debug(rootEntity.toString());
 
-            pageParsingService.parsePages(rootEntity, RunMode.S3, ALL_PAGE_DATA);
+            pageParsingService.parsePages(rootEntity, ALL_PAGE_DATA);
             Set<Template> desiredTemplates = ImmutableSet.of(
                 STATIC_ARTICLE,
                 ARTICLE_LONG_FORM,
@@ -150,7 +150,7 @@ public class Main {
 
         client = ClientBuilder.newBuilder().build();
 
-        pageParsingService.parsePages(rootEntity, RunMode.CLOUDSEARCH, ALL_PAGE_DATA);
+        pageParsingService.parsePages(rootEntity, ALL_PAGE_DATA);
 
         Set<Template> desiredTemplates = ImmutableSet.of(
             SUMMER_MISSION,

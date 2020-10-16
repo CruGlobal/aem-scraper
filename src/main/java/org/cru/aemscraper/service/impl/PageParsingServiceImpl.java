@@ -8,7 +8,6 @@ import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.HtmlParserService;
 import org.cru.aemscraper.service.PageParsingService;
 import org.cru.aemscraper.util.PageUtil;
-import org.cru.aemscraper.util.RunMode;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -32,12 +31,11 @@ public class PageParsingServiceImpl implements PageParsingService {
     }
 
     @Override
-    public void parsePages(final PageEntity pageEntity, final RunMode runMode, final Set<PageData> allPageData)
-        throws URISyntaxException {
+    public void parsePages(final PageEntity pageEntity, final Set<PageData> allPageData) throws URISyntaxException {
 
         if (pageEntity.getChildren() != null) {
             for (PageEntity child : pageEntity.getChildren()) {
-                parsePages(child, runMode, allPageData);
+                parsePages(child, allPageData);
             }
         }
 
@@ -53,11 +51,9 @@ public class PageParsingServiceImpl implements PageParsingService {
             .withTemplate(getTemplate(pageEntity))
             .shouldExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"))
             .withTags(getTags(pageEntity.getProperties().entrySet()))
-            .withSiteSection(buildSiteSectionFromUrl(pageUrl));
+            .withSiteSection(buildSiteSectionFromUrl(pageUrl))
+            .withImageUrl(getImageUrl(pageEntity, pageUrl));
 
-        if (runMode == RunMode.CLOUDSEARCH) {
-            pageData = pageData.withImageUrl(getImageUrl(pageEntity, pageUrl));
-        }
         allPageData.add(pageData);
     }
 
