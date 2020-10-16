@@ -1,6 +1,7 @@
 package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
@@ -16,10 +17,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class PageParsingServiceImpl implements PageParsingService {
     HtmlParserService htmlParserService;
@@ -49,7 +52,8 @@ public class PageParsingServiceImpl implements PageParsingService {
             .withUrl(pageUrl)
             .withTemplate(getTemplate(pageEntity))
             .shouldExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"))
-            .withTags(getTags(pageEntity.getProperties().entrySet()));
+            .withTags(getTags(pageEntity.getProperties().entrySet()))
+            .withSiteSection(buildSiteSectionFromUrl(pageUrl));
 
         if (runMode == RunMode.CLOUDSEARCH) {
             pageData = pageData.withImageUrl(getImageUrl(pageEntity, pageUrl));
@@ -199,5 +203,18 @@ public class PageParsingServiceImpl implements PageParsingService {
             }
         }
         return new ArrayList<>();
+    }
+
+    String buildSiteSectionFromUrl(final String pageUrl) {
+        Pattern prefixMatch = Pattern.compile("^https?://(www\\.)?cru\\.org(/content/cru)?(/[a-z]{2,3}/[a-z]{2})?");
+        String path = prefixMatch.matcher(pageUrl).replaceAll("");
+        path = path.replace(".html", "");
+        String[] parts = path.split("/");
+
+        if (parts.length > 1) {
+            String joined = Joiner.on(',').join(Arrays.copyOfRange(parts, 1, parts.length - 1));
+            return "{" + joined + "}";
+        }
+        return "{}";
     }
 }

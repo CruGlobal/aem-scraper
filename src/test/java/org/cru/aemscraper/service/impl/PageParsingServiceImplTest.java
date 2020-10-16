@@ -3,27 +3,31 @@ package org.cru.aemscraper.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import jersey.repackaged.com.google.common.collect.Lists;
-import org.cru.aemscraper.Main;
 import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.HtmlParserService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class PageParsingServiceImplTest {
     @Mock
     private HtmlParserService htmlParserService;
 
-    private PageParsingServiceImpl pageParsingService = new PageParsingServiceImpl(htmlParserService);
+    private final PageParsingServiceImpl pageParsingService = new PageParsingServiceImpl(htmlParserService);
 
     @Test
     public void testGetContentScoreWithScoreProperty() {
@@ -120,5 +124,18 @@ public class PageParsingServiceImplTest {
 
         String expectedDate = "2015-09-27T21:34:24.007Z";
         assertThat(pageParsingService.getDateProperty(pageEntity, "someDate"), is(equalTo(expectedDate)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("possibleUrlsProvider")
+    public void testBuildSiteSectionFromUrl(final String url, final String expected) {
+        assertThat(pageParsingService.buildSiteSectionFromUrl(url), is(equalTo(expected)));
+    }
+
+    static Stream<Arguments> possibleUrlsProvider() {
+        return Stream.of(
+            arguments("https://www.cru.org/content/cru/us/en/path/to/page.html", "{path,to}"),
+            arguments("https://www.cru.org/us/en/path/to/page.html", "{path,to}")
+        );
     }
 }

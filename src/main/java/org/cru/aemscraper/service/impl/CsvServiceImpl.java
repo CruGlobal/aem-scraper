@@ -20,7 +20,7 @@ public class CsvServiceImpl implements CsvService {
     public File createCsvFile(final Set<PageData> allPageData) throws IOException {
         BufferedWriter writer = Files.newBufferedWriter(Paths.get(CSV_FILE));
         CSVFormat csvFormat = CSVFormat.DEFAULT
-            .withHeader("score", "content", "title", "description", "imageUrl", "tags", "url");
+            .withHeader("score", "content", "title", "description", "imageUrl", "tags", "url", "siteSection");
         CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
         for (PageData entry : allPageData) {
@@ -32,7 +32,8 @@ public class CsvServiceImpl implements CsvService {
                     entry.getDescription(),
                     entry.getImageUrl(),
                     entry.getTags(),
-                    entry.getUrl());
+                    entry.getUrl(),
+                    entry.getSiteSection());
             }
         }
 

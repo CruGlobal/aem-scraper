@@ -14,6 +14,7 @@ public class PageData {
     private String description;
     private String imageUrl;
     private String publishedDate;
+    private String siteSection; // In the form of {first,second,third}
 
 
     @JsonIgnore
@@ -111,6 +112,15 @@ public class PageData {
         return this;
     }
 
+    public String getSiteSection() {
+        return siteSection;
+    }
+
+    public PageData withSiteSection(final String siteSection) {
+        this.siteSection = siteSection;
+        return this;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         boolean equals = super.equals(obj);
@@ -129,7 +139,8 @@ public class PageData {
                 && Objects.equals(getImageUrl(), other.getImageUrl())
                 && Objects.equals(getPublishedDate(), other.getPublishedDate())
                 && Objects.equals(getTemplate(), other.getTemplate())
-                && Objects.equals(shouldExcludeFromSearch(), other.shouldExcludeFromSearch());
+                && Objects.equals(shouldExcludeFromSearch(), other.shouldExcludeFromSearch())
+                && Objects.equals(getSiteSection(), other.getSiteSection());
         }
         return false;
     }
