@@ -1,4 +1,4 @@
-java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar \
+java -jar aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar \
 http://localhost:4503/api/content/site/us/en.json \
 my-bucket \
 /first/second/folder \
@@ -9,6 +9,6 @@ file \
 -DrunMode=S3
 
 
-#java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json \
+#java -jar aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json \
 # -Dtype=ADD \
 # -DrunMode=cloudsearch
