@@ -12,7 +12,7 @@ Maven Projects > Execute Maven Goal > clean install
 Run > Edit Configurations
 
 Add a JAR Application
-  * Select the `aem-scraper-2.0-SNAPSHOT-jar-with-dependencies.jar`
+  * Select the `aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar`
   * Under Program Arguments, put the full URL to the top level JSON file of the tree you wish to traverse as well as other arguments that don't start with `-D`. If you are using the cloudsearch functionality of this program, you will also need to add basic authentication here.
   * Under VM Options, add the `-D` arguments described below (e.g. `-DrunMode=cloudsearch`)
   
@@ -27,7 +27,7 @@ There are two run modes available: `S3` and `cloudsearch`. These run modes deter
 Specifically, the use case for this run mode is to put the data into Amazon S3 and then use the data with
 Amazon Comprehend to train a model using custom classification.
 
-`java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> <s3 bucket name> 
+`java -jar aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> <s3 bucket name> 
 <path to s3 file (not including the file name)> <file or bytes>`
 
 Above, specify `file` if you want the program to generate a csv file on your local machine, otherwise specify `bytes`.
@@ -42,7 +42,7 @@ If you want to set a log file instead of logging to the console, you can pass in
 `-Dorg.slf4j.simpleLogger.logFile={path/to/file}`.
 
 ##### Example:
-`java -jar aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json
+`java -jar aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json
  my-bucket /first/second/folder file -DonlySendToS3=false -DonlyBuildCSV=false
  -Dorg.slf4j.simpleLogger.logFile=./output.log -DrunMode=S3`
 
@@ -57,4 +57,4 @@ Valid values are `ADD` and `DELETE`.
 You also need to add basic authentication for the server you are trying to scrape.
 
 ##### Example 
-`java -jar -DrunMode=cloudsearch aem-scraper-1.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> ADD -u username:password`
+`java -jar -DrunMode=cloudsearch aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> ADD -u username:password`

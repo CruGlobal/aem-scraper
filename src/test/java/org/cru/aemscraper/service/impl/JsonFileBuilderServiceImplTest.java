@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -142,22 +141,6 @@ public class JsonFileBuilderServiceImplTest {
         assertThat(readData, is(not(nullValue())));
 
         return readData;
-    }
-
-    @Test
-    public void testRemoveUndesiredPages() {
-        String desiredTemplate = "/apps/myApp/components/page/editable/article";
-
-        PageData desiredPage = new PageData().withTemplate(desiredTemplate);
-        PageData undesiredPage = new PageData().withTemplate("/apps/myApp/components/page/sidebar");
-
-        Set<PageData> allPages = Sets.newHashSet(desiredPage, undesiredPage);
-        Set<PageData> expectedFiltered = Sets.newHashSet(desiredPage);
-
-        Set<String> desiredTemplates = Sets.newHashSet(desiredTemplate);
-        Set<PageData> filtered = jsonFileBuilderService.removeUndesiredTemplates(allPages, desiredTemplates);
-
-        assertThat(expectedFiltered, is(equalTo(filtered)));
     }
 
     @Test

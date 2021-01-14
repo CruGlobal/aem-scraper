@@ -1,22 +1,34 @@
-package org.cru.aemscraper;
+package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageEntity;
+import org.cru.aemscraper.service.HtmlParserService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class MainTest {
+public class PageParsingServiceImplTest {
+    @Mock
+    private HtmlParserService htmlParserService;
+
+    private final PageParsingServiceImpl pageParsingService = new PageParsingServiceImpl(htmlParserService);
+
     @Test
     public void testGetContentScoreWithScoreProperty() {
         Map<String, Object> properties = new HashMap<>();
@@ -25,7 +37,7 @@ public class MainTest {
         PageEntity page = new PageEntity()
             .withProperties(properties);
 
-        String score = Main.getContentScore(page);
+        String score = pageParsingService.getContentScore(page);
         assertThat(score, is(equalTo("4")));
     }
 
@@ -41,7 +53,7 @@ public class MainTest {
         PageEntity page = new PageEntity()
             .withProperties(properties);
 
-        String score = Main.getContentScore(page);
+        String score = pageParsingService.getContentScore(page);
         assertThat(score, is(equalTo("6")));
 
     }
@@ -79,7 +91,7 @@ public class MainTest {
             pageEntity.setCanonicalUrl(pageUrl);
         }
 
-        String imageUrl = Main.getImageUrl(pageEntity, pageUrl);
+        String imageUrl = pageParsingService.getImageUrl(pageEntity, pageUrl);
         assertThat(imageUrl, is(equalTo(expectedResult)));
     }
 
@@ -89,7 +101,7 @@ public class MainTest {
         PageEntity pageEntity = new PageEntity();
         pageEntity.setCanonicalUrl(canonicalUrl);
 
-        assertThat(Main.determineUrl(pageEntity), is(equalTo(canonicalUrl)));
+        assertThat(pageParsingService.determineUrl(pageEntity), is(equalTo(canonicalUrl)));
     }
 
     @Test
@@ -100,7 +112,7 @@ public class MainTest {
         Link contentLink = new Link().withRel(Lists.newArrayList("content")).withHref(contentUrl);
         PageEntity pageEntity = new PageEntity().withLinks(Lists.newArrayList(contentLink));
 
-        assertThat(Main.determineUrl(pageEntity), is(equalTo(canonicalUrl)));
+        assertThat(pageParsingService.determineUrl(pageEntity), is(equalTo(canonicalUrl)));
     }
 
     @Test
@@ -111,6 +123,19 @@ public class MainTest {
         PageEntity pageEntity = new PageEntity().withProperties(properties);
 
         String expectedDate = "2015-09-27T21:34:24.007Z";
-        assertThat(Main.getDateProperty(pageEntity, "someDate"), is(equalTo(expectedDate)));
+        assertThat(pageParsingService.getDateProperty(pageEntity, "someDate"), is(equalTo(expectedDate)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("possibleUrlsProvider")
+    public void testBuildSiteSectionFromUrl(final String url, final String expected) {
+        assertThat(pageParsingService.buildSiteSectionFromUrl(url), is(equalTo(expected)));
+    }
+
+    static Stream<Arguments> possibleUrlsProvider() {
+        return Stream.of(
+            arguments("https://www.cru.org/content/cru/us/en/path/to/page.html", "{path,to}"),
+            arguments("https://www.cru.org/us/en/path/to/page.html", "{path,to}")
+        );
     }
 }

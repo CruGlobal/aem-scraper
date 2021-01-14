@@ -19,11 +19,21 @@ public class CsvServiceImpl implements CsvService {
     @Override
     public File createCsvFile(final Set<PageData> allPageData) throws IOException {
         BufferedWriter writer = Files.newBufferedWriter(Paths.get(CSV_FILE));
-        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
+        CSVFormat csvFormat = CSVFormat.DEFAULT
+            .withHeader("score", "content", "title", "description", "imageUrl", "tags", "url", "siteSection");
+        CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
         for (PageData entry : allPageData) {
             if (!entry.getHtmlBody().isEmpty()) {
-                csvPrinter.printRecord(entry.getContentScore(), entry.getHtmlBody());
+                csvPrinter.printRecord(
+                    entry.getContentScore(),
+                    entry.getHtmlBody(),
+                    entry.getTitle(),
+                    entry.getDescription(),
+                    entry.getImageUrl(),
+                    entry.getTags(),
+                    entry.getUrl(),
+                    entry.getSiteSection());
             }
         }
 
