@@ -3,7 +3,7 @@ package org.cru.aemscraper.service;
 import java.io.File;
 
 public interface S3Service {
-    void sendCsvToS3(File csvFile);
+    void sendToS3(File file);
 
-    void sendCsvBytesToS3(byte[] csvBytes);
+    void sendBytesToS3(byte[] csvBytes);
 }

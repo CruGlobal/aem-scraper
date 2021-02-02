@@ -104,7 +104,7 @@ public class Main {
             }
 
             File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
-            s3Service.sendCsvToS3(existingFile);
+            s3Service.sendToS3(existingFile);
         } else {
             PageEntity rootEntity = aemScraperService.scrape(rootUrl);
             rootEntity = aemScraperService.removeNonPages(rootEntity);
@@ -125,13 +125,13 @@ public class Main {
                 File csvFile = csvService.createCsvFile(filteredData);
 
                 if (!onlyBuildCsv) {
-                    s3Service.sendCsvToS3(csvFile);
+                    s3Service.sendToS3(csvFile);
                 }
             } else if (type.equals("bytes")) {
                 byte[] csvBytes = csvService.createCsvBytes(filteredData);
 
                 if (!onlyBuildCsv) {
-                    s3Service.sendCsvBytesToS3(csvBytes);
+                    s3Service.sendBytesToS3(csvBytes);
                 }
             }
         }
