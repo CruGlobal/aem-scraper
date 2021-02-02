@@ -22,8 +22,8 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class JsonFileBuilderServiceImplTest {
-    private final JsonFileBuilderServiceImpl jsonFileBuilderService = new JsonFileBuilderServiceImpl();
+public class JsonCloudSearchFileBuilderServiceImplTest {
+    private final JsonCloudSearchFileBuilderServiceImpl jsonCloudSearchFileBuilderService = new JsonCloudSearchFileBuilderServiceImpl();
 
     @Test
     public void testBuildSingleObjectFile() throws Exception {
@@ -32,7 +32,7 @@ public class JsonFileBuilderServiceImplTest {
         Set<PageData> allData = new HashSet<>();
         allData.add(pageData);
 
-        jsonFileBuilderService.buildJsonFiles(allData, CloudSearchDocument.Type.ADD);
+        jsonCloudSearchFileBuilderService.buildJsonFiles(allData, CloudSearchDocument.Type.ADD);
 
         MappingIterator<CloudSearchAddDocument> readData = verifyAndReadFile();
 
@@ -72,7 +72,7 @@ public class JsonFileBuilderServiceImplTest {
         allData.add(pageData);
         allData.add(anotherPage);
 
-        jsonFileBuilderService.buildJsonFiles(allData, CloudSearchDocument.Type.ADD);
+        jsonCloudSearchFileBuilderService.buildJsonFiles(allData, CloudSearchDocument.Type.ADD);
 
         MappingIterator<CloudSearchAddDocument> readData = verifyAndReadFile();
 
@@ -100,7 +100,7 @@ public class JsonFileBuilderServiceImplTest {
             allData.add(buildSinglePageData());
         }
 
-        jsonFileBuilderService.buildJsonFiles(allData, CloudSearchDocument.Type.ADD);
+        jsonCloudSearchFileBuilderService.buildJsonFiles(allData, CloudSearchDocument.Type.ADD);
 
         verifyAndReadFile();
         verifyAndReadFile("./cloudsearch-data-1.json");
@@ -153,7 +153,7 @@ public class JsonFileBuilderServiceImplTest {
         Set<PageData> allPages = Sets.newHashSet(desiredPage, undesiredPage);
         Set<PageData> expectedFiltered = Sets.newHashSet(desiredPage);
 
-        Set<PageData> filtered = jsonFileBuilderService.filterPages(allPages);
+        Set<PageData> filtered = jsonCloudSearchFileBuilderService.filterPages(allPages);
         assertThat(expectedFiltered, is(equalTo(filtered)));
     }
 }

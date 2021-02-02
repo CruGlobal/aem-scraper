@@ -7,13 +7,13 @@ import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.service.CsvService;
 import org.cru.aemscraper.service.HtmlParserService;
-import org.cru.aemscraper.service.JsonFileBuilderService;
+import org.cru.aemscraper.service.JsonCloudSearchFileBuilderService;
 import org.cru.aemscraper.service.PageParsingService;
 import org.cru.aemscraper.service.S3Service;
 import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
 import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
-import org.cru.aemscraper.service.impl.JsonFileBuilderServiceImpl;
+import org.cru.aemscraper.service.impl.JsonCloudSearchFileBuilderServiceImpl;
 import org.cru.aemscraper.service.impl.PageParsingServiceImpl;
 import org.cru.aemscraper.service.impl.S3ServiceImpl;
 import org.cru.aemscraper.util.PageUtil;
@@ -165,7 +165,7 @@ public class Main {
         );
         Set<PageData> filteredPages = aemScraperService.removeUndesiredTemplates(ALL_PAGE_DATA, desiredTemplates);
 
-        JsonFileBuilderService jsonFileBuilderService = new JsonFileBuilderServiceImpl();
-        jsonFileBuilderService.buildJsonFiles(filteredPages, type);
+        JsonCloudSearchFileBuilderService jsonCloudSearchFileBuilderService = new JsonCloudSearchFileBuilderServiceImpl();
+        jsonCloudSearchFileBuilderService.buildJsonFiles(filteredPages, type);
     }
 }

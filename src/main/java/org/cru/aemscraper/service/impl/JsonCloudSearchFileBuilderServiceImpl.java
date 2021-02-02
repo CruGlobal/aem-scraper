@@ -11,7 +11,7 @@ import org.cru.aemscraper.model.CloudSearchAddDocument;
 import org.cru.aemscraper.model.CloudSearchDeleteDocument;
 import org.cru.aemscraper.model.CloudSearchDocument;
 import org.cru.aemscraper.model.PageData;
-import org.cru.aemscraper.service.JsonFileBuilderService;
+import org.cru.aemscraper.service.JsonCloudSearchFileBuilderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
-    private static final Logger LOG = LoggerFactory.getLogger(JsonFileBuilderServiceImpl.class);
+public class JsonCloudSearchFileBuilderServiceImpl implements JsonCloudSearchFileBuilderService {
+    private static final Logger LOG = LoggerFactory.getLogger(JsonCloudSearchFileBuilderServiceImpl.class);
 
     private static final String FILE_PREFIX = "./cloudsearch-data";
     private static final String FILE_TYPE = ".json";

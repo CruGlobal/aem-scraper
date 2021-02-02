@@ -5,6 +5,6 @@ import org.cru.aemscraper.model.PageData;
 
 import java.util.Set;
 
-public interface JsonFileBuilderService {
+public interface JsonCloudSearchFileBuilderService {
     void buildJsonFiles(Set<PageData> pageData, CloudSearchDocument.Type type);
 }
