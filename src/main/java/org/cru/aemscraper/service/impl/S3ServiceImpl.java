@@ -24,14 +24,14 @@ public class S3ServiceImpl implements S3Service {
     }
 
     @Override
-    public void sendCsvToS3(final File csvFile) {
-        RequestBody requestBody = RequestBody.fromFile(csvFile);
+    public void sendToS3(final File file) {
+        RequestBody requestBody = RequestBody.fromFile(file);
         sendDataToS3(requestBody);
     }
 
     @Override
-    public void sendCsvBytesToS3(final byte[] csvBytes) {
-        RequestBody requestBody = RequestBody.fromBytes(csvBytes);
+    public void sendBytesToS3(final byte[] bytes) {
+        RequestBody requestBody = RequestBody.fromBytes(bytes);
         sendDataToS3(requestBody);
     }
 
