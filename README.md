@@ -28,22 +28,22 @@ Specifically, the use case for this run mode is to put the data into Amazon S3 a
 Amazon Comprehend to train a model using custom classification.
 
 `java -jar aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar <url to top level json> <s3 bucket name> 
-<path to s3 file (not including the file name)> <file or bytes>`
+<path to s3 file (not including the file name)> <csvfile|jsonfile|bytes>`
 
-Above, specify `file` if you want the program to generate a csv file on your local machine, otherwise specify `bytes`.
+Above, specify `csvfile` if you want the program to generate a csv file on your local machine, or 'jsonfile' if you want the generated file json formatted; otherwise specify `bytes`.
 
-If you have previously generated a csv file and placed it into `./data.csv`, then you can run the program with the 
+If you have previously generated a csv or json file and placed it into `./data.csv` or `./data.json` respectively, then you can run the program with the 
 flag `-DonlySendToS3=true`.
 
-If you want to test what will be inserted into the CSV file without sending it to S3, pass in the flag
-`-DonlyBuildCSV=true` when running the program.
+If you want to test what will be inserted into the output file without sending it to S3, pass in the flag
+`-DonlyBuildOutput=true` when running the program.
 
 If you want to set a log file instead of logging to the console, you can pass in the flag
 `-Dorg.slf4j.simpleLogger.logFile={path/to/file}`.
 
 ##### Example:
 `java -jar aem-scraper-3.0-SNAPSHOT-jar-with-dependencies.jar http://localhost:4503/api/content/site/us/en.json
- my-bucket /first/second/folder file -DonlySendToS3=false -DonlyBuildCSV=false
+ my-bucket /first/second/folder jsonfile -DonlySendToS3=false -DonlyBuildOutput=false
  -Dorg.slf4j.simpleLogger.logFile=./output.log -DrunMode=S3`
 
 #### cloudsearch
