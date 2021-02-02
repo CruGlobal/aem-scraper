@@ -8,12 +8,14 @@ import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.service.CsvService;
 import org.cru.aemscraper.service.HtmlParserService;
 import org.cru.aemscraper.service.JsonCloudSearchFileBuilderService;
+import org.cru.aemscraper.service.JsonFileBuilderService;
 import org.cru.aemscraper.service.PageParsingService;
 import org.cru.aemscraper.service.S3Service;
 import org.cru.aemscraper.service.impl.AemScraperServiceImpl;
 import org.cru.aemscraper.service.impl.CsvServiceImpl;
 import org.cru.aemscraper.service.impl.HtmlParserServiceImpl;
 import org.cru.aemscraper.service.impl.JsonCloudSearchFileBuilderServiceImpl;
+import org.cru.aemscraper.service.impl.JsonFileBuilderServiceImpl;
 import org.cru.aemscraper.service.impl.PageParsingServiceImpl;
 import org.cru.aemscraper.service.impl.S3ServiceImpl;
 import org.cru.aemscraper.util.PageUtil;
@@ -86,31 +88,41 @@ public class Main {
             return;
         }
 
-        String type = "file";
+        String type = "";
         if (args[3] != null) {
             type = args[3];
         }
 
         boolean onlySendToS3 = Boolean.parseBoolean(System.getProperty("onlySendToS3"));
-        boolean onlyBuildCsv = Boolean.parseBoolean(System.getProperty("onlyBuildCSV"));
+        boolean onlyBuildOutput = Boolean.parseBoolean(System.getProperty("onlyBuildOutput"));
 
         S3Service s3Service = new S3ServiceImpl(bucketName, keyPrefix);
         CsvService csvService = new CsvServiceImpl();
+        JsonFileBuilderService jsonFileBuilderService = new JsonFileBuilderServiceImpl();
 
         if (onlySendToS3) {
-            if (!type.equals("file")) {
-                LOG.error("Must use type \"file\" to only send to S3");
-                return;
+            if (!type.equals("csvfile") && !type.equals("jsonfile")) {
+                LOG.error("Must use type \"[csv,json]file\" to only send to S3");
+            } else if (type.equals("csvfile")) {
+                File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
+                s3Service.sendToS3(existingFile);
+            } else {
+                File existingFile = Paths.get(JsonFileBuilderServiceImpl.OUTPUT_FILE).toFile();
+                s3Service.sendToS3(existingFile);
             }
-
-            File existingFile = Paths.get(CsvServiceImpl.CSV_FILE).toFile();
-            s3Service.sendToS3(existingFile);
         } else {
+            LOG.info("Scraping pages ...");
             PageEntity rootEntity = aemScraperService.scrape(rootUrl);
-            rootEntity = aemScraperService.removeNonPages(rootEntity);
-            LOG.debug(rootEntity.toString());
+            LOG.info("Scraping pages ... done {}", rootEntity.getJcrContent());
 
+            LOG.info("Removing non pages ...");
+            rootEntity = aemScraperService.removeNonPages(rootEntity);
+            LOG.info("Removing non pages ... done {}", rootEntity.getJcrContent());
+            LOG.info(rootEntity.toString());
+
+            LOG.info("Parsing pages ...");
             pageParsingService.parsePages(rootEntity, ALL_PAGE_DATA);
+            LOG.info("Parsing pages ... done {}", rootEntity.getJcrContent());
             Set<Template> desiredTemplates = ImmutableSet.of(
                 STATIC_ARTICLE,
                 ARTICLE_LONG_FORM,
@@ -119,19 +131,38 @@ public class Main {
                 SUMMER_MISSION,
                 INTERNATIONAL_INTERNSHIP
             );
+
+            LOG.info("Remove undesired templates ...");
             Set<PageData> filteredData = aemScraperService.removeUndesiredTemplates(ALL_PAGE_DATA, desiredTemplates);
+            LOG.info("Remove undesired templates ... done. Filtered data set size {}", filteredData.size());
 
-            if (type.equals("file")) {
+            if (type.equals("csvfile")) {
+                LOG.info("Create csv file ...");
                 File csvFile = csvService.createCsvFile(filteredData);
+                LOG.info("Create csv file ... done");
 
-                if (!onlyBuildCsv) {
+                if (!onlyBuildOutput) {
+                    LOG.info("Send csv file to S3 ...");
                     s3Service.sendToS3(csvFile);
+                    LOG.info("Send csv file to S3 ... done");
+                }
+            } else if (type.equals("jsonfile")) {
+                LOG.info("Create json file ...");
+                File jsonFile = jsonFileBuilderService.buildJsonFiles(filteredData);
+                LOG.info("Create json file ... done");
+
+                if (!onlyBuildOutput) {
+                    LOG.info("Send json file to S3 ...");
+                    s3Service.sendToS3(jsonFile);
+                    LOG.info("Send json file to S3 ... done");
                 }
             } else if (type.equals("bytes")) {
                 byte[] csvBytes = csvService.createCsvBytes(filteredData);
 
-                if (!onlyBuildCsv) {
+                if (!onlyBuildOutput) {
+                    LOG.info("Send bytes to S3 ...");
                     s3Service.sendBytesToS3(csvBytes);
+                    LOG.info("Send bytes to S3 ... done");
                 }
             }
         }

@@ -1,12 +1,15 @@
 package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cru.aemscraper.Main;
 import org.cru.aemscraper.model.Link;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.model.PageEntity;
 import org.cru.aemscraper.service.AemScraperService;
 import org.cru.aemscraper.util.PageUtil;
 import org.cru.aemscraper.util.Template;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -19,6 +22,8 @@ import java.util.Set;
 
 public class AemScraperServiceImpl implements AemScraperService {
     private final Client client;
+
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     public AemScraperServiceImpl() {
         this(ClientBuilder.newClient());
@@ -39,6 +44,7 @@ public class AemScraperServiceImpl implements AemScraperService {
                 for (Link link : child.getLinks()) {
                     for (String rel : link.getRel()) {
                         if (rel.equals("self")) {
+                            LOG.info("link.getHref(): {}", link.getHref());
                             PageEntity realChild = scrape(link.getHref());
                             child = child
                                 .withChildren(realChild.getChildren())
