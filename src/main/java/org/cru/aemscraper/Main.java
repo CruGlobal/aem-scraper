@@ -148,7 +148,7 @@ public class Main {
                 }
             } else if (type.equals("jsonfile")) {
                 LOG.info("Create json file ...");
-                File jsonFile = jsonFileBuilderService.buildJsonFiles(filteredData);
+                File jsonFile = jsonFileBuilderService.buildJsonFiles(filteredData, false);
                 LOG.info("Create json file ... done");
 
                 if (!onlyBuildOutput) {
