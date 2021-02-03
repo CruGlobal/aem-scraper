@@ -9,8 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,9 +23,9 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public File buildJsonFiles(final Set<PageData> pageData) throws IOException {
-        Set<PageData> filtered = filterPages(pageData);
-        return writeFile(Lists.newArrayList(filtered), OUTPUT_FILE);
+    public File buildJsonFiles(final Set<PageData> pageData, boolean enforceFileSizeLimit) throws IOException {
+        List<PageData> filtered = Lists.newArrayList(filterPages(pageData));
+        return enforceFileSizeLimit ? writeFiles(filtered, OUTPUT_FILE) : writeFile(filtered, OUTPUT_FILE);
     }
 
     Set<PageData> filterPages(final Set<PageData> pageData) {
@@ -34,12 +35,16 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
                 .collect(Collectors.toSet());
     }
 
-    private File writeFile(final List<PageData> pageDataList, final String fileName) {
-        FileWriter fileWriter = null;
-        BufferedWriter bufferedWriter = null;
-        try {
-            fileWriter = new FileWriter(fileName);
-            bufferedWriter = new BufferedWriter(fileWriter);
+    private File writeFile(final List<PageData> pageDataList, final String fileName) throws IOException {
+        File file = new File(fileName);
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, pageDataList);
+        return file;
+    }
+
+    private File writeFiles(final List<PageData> pageDataList, final String fileName) {
+        File file = new File(fileName);
+
+        try(BufferedWriter bufferedWriter = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
             boolean first = true;
             bufferedWriter.write("[");
             for (PageData pageData : pageDataList) {
@@ -61,26 +66,9 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
             bufferedWriter.write("]");
         } catch (Exception e) {
             LOG.error("Error writing JSON file.", e);
-        } finally {
-            try {
-                if(bufferedWriter != null) {
-                    bufferedWriter.flush();
-                    bufferedWriter.close();
-                }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                if(fileWriter != null) {
-                    fileWriter.close();
-                }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            throw new RuntimeException(e);
         }
 
-        return new File(fileName);
+        return file;
     }
 }
