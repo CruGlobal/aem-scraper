@@ -40,16 +40,25 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
         try {
             fileWriter = new FileWriter(fileName);
             bufferedWriter = new BufferedWriter(fileWriter);
+            boolean first = true;
+            bufferedWriter.write("[");
             for (PageData pageData : pageDataList) {
                 try {
-                    bufferedWriter.write(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(pageData));
+                    if(!first) {
+                        bufferedWriter.write(",");
+                    } else {
+                        first = false;
+                    }
                     bufferedWriter.newLine();
+                    bufferedWriter.write(objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(pageData));
                 }
                 catch (IOException e) {
                     LOG.error(e.getMessage(), e);
                     throw new RuntimeException(e);
                 }
             }
+            bufferedWriter.newLine();
+            bufferedWriter.write("]");
         } catch (Exception e) {
             LOG.error("Error writing JSON file.", e);
         } finally {
