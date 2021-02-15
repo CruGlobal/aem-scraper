@@ -15,12 +15,14 @@ public class PageData {
     private String imageUrl;
     private String publishedDate;
     private String siteSection; // In the form of {first,second,third}
-
+    private boolean excludeFromRecommendations;
 
     @JsonIgnore
     private String template;
     @JsonIgnore
     private boolean excludeFromSearch;
+    @JsonIgnore
+    private boolean excludeFromSearchEngines;
 
     public String getUrl() {
         return url;
@@ -112,12 +114,30 @@ public class PageData {
         return this;
     }
 
+    public boolean shouldExcludeFromSearchEngines() {
+        return excludeFromSearchEngines;
+    }
+
+    public PageData shouldExcludeFromSearchEngines(final boolean excludeFromSearchEngines) {
+        this.excludeFromSearchEngines = excludeFromSearchEngines;
+        return this;
+    }
+
     public String getSiteSection() {
         return siteSection;
     }
 
     public PageData withSiteSection(final String siteSection) {
         this.siteSection = siteSection;
+        return this;
+    }
+
+    public boolean isExcludeFromRecommendations() {
+        return excludeFromRecommendations;
+    }
+
+    public PageData isExcludeFromRecommendations(final boolean excludeFromRecommendations) {
+        this.excludeFromRecommendations = excludeFromRecommendations;
         return this;
     }
 
@@ -140,6 +160,8 @@ public class PageData {
                 && Objects.equals(getPublishedDate(), other.getPublishedDate())
                 && Objects.equals(getTemplate(), other.getTemplate())
                 && Objects.equals(shouldExcludeFromSearch(), other.shouldExcludeFromSearch())
+                && Objects.equals(shouldExcludeFromSearchEngines(), other.shouldExcludeFromSearchEngines())
+                && Objects.equals(isExcludeFromRecommendations(), other.isExcludeFromRecommendations())
                 && Objects.equals(getSiteSection(), other.getSiteSection());
         }
         return false;

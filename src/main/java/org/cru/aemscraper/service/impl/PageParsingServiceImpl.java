@@ -50,6 +50,8 @@ public class PageParsingServiceImpl implements PageParsingService {
             .withUrl(pageUrl)
             .withTemplate(getTemplate(pageEntity))
             .shouldExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"))
+            .shouldExcludeFromSearchEngines(getBooleanProperty(pageEntity, "excludeFromSearchEngines"))
+            .isExcludeFromRecommendations(getBooleanProperty(pageEntity, "excludeFromRecommendations"))
             .withTags(getTags(pageEntity.getProperties().entrySet()))
             .withSiteSection(buildSiteSectionFromUrl(pageUrl))
             .withImageUrl(getImageUrl(pageEntity, pageUrl));
