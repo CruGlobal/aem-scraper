@@ -49,7 +49,7 @@ public class JsonCloudSearchFileBuilderServiceImpl implements JsonCloudSearchFil
     Set<PageData> filterPages(final Set<PageData> pageData) {
         return pageData
             .stream()
-            .filter(page -> !page.shouldExcludeFromSearch())
+            .filter(page -> !page.isExcludeFromSearch())
             .collect(Collectors.toSet());
     }
 

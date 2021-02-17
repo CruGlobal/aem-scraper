@@ -2,6 +2,7 @@ package org.cru.aemscraper.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jersey.repackaged.com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.cru.aemscraper.model.PageData;
 import org.cru.aemscraper.service.JsonFileBuilderService;
 import org.slf4j.Logger;
@@ -24,14 +25,23 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
 
     @Override
     public File buildJsonFiles(final Set<PageData> pageData, boolean enforceFileSizeLimit) throws IOException {
-        List<PageData> filtered = Lists.newArrayList(filterPages(pageData));
-        return enforceFileSizeLimit ? writeFiles(filtered, OUTPUT_FILE) : writeFile(filtered, OUTPUT_FILE);
+        List<PageData> filteredPageData = normalizeSpace(Lists.newArrayList(filterPages(pageData)));
+        return enforceFileSizeLimit ? writeFiles(filteredPageData, OUTPUT_FILE) : writeFile(filteredPageData, OUTPUT_FILE);
     }
 
-    Set<PageData> filterPages(final Set<PageData> pageData) {
+    private List<PageData> normalizeSpace(final List<PageData> pageDataSet) {
+        pageDataSet.forEach(pageData -> pageData.withHtmlBody(StringUtils.normalizeSpace(pageData.getHtmlBody())));
+
+        pageDataSet.forEach(pageData -> pageData.withDescription(StringUtils.normalizeSpace(pageData.getDescription())));
+
+        return pageDataSet;
+    }
+
+    private Set<PageData> filterPages(final Set<PageData> pageData) {
         return pageData
                 .stream()
-                .filter(page -> !page.shouldExcludeFromSearch())
+                .filter(page -> !page.isExcludeFromSearch())
+                .filter(page -> !page.isExcludeFromSearchEngines())
                 .collect(Collectors.toSet());
     }
 

@@ -15,12 +15,14 @@ public class PageData {
     private String imageUrl;
     private String publishedDate;
     private String siteSection; // In the form of {first,second,third}
-
+    private boolean excludeFromRecommendations;
 
     @JsonIgnore
     private String template;
     @JsonIgnore
     private boolean excludeFromSearch;
+    @JsonIgnore
+    private boolean excludeFromSearchEngines;
 
     public String getUrl() {
         return url;
@@ -103,12 +105,21 @@ public class PageData {
         return this;
     }
 
-    public boolean shouldExcludeFromSearch() {
+    public boolean isExcludeFromSearch() {
         return excludeFromSearch;
     }
 
-    public PageData shouldExcludeFromSearch(final boolean excludeFromSearch) {
+    public PageData isExcludeFromSearch(final boolean excludeFromSearch) {
         this.excludeFromSearch = excludeFromSearch;
+        return this;
+    }
+
+    public boolean isExcludeFromSearchEngines() {
+        return excludeFromSearchEngines;
+    }
+
+    public PageData isExcludeFromSearchEngines(final boolean excludeFromSearchEngines) {
+        this.excludeFromSearchEngines = excludeFromSearchEngines;
         return this;
     }
 
@@ -118,6 +129,15 @@ public class PageData {
 
     public PageData withSiteSection(final String siteSection) {
         this.siteSection = siteSection;
+        return this;
+    }
+
+    public boolean isExcludeFromRecommendations() {
+        return excludeFromRecommendations;
+    }
+
+    public PageData isExcludeFromRecommendations(final boolean excludeFromRecommendations) {
+        this.excludeFromRecommendations = excludeFromRecommendations;
         return this;
     }
 
@@ -139,7 +159,9 @@ public class PageData {
                 && Objects.equals(getImageUrl(), other.getImageUrl())
                 && Objects.equals(getPublishedDate(), other.getPublishedDate())
                 && Objects.equals(getTemplate(), other.getTemplate())
-                && Objects.equals(shouldExcludeFromSearch(), other.shouldExcludeFromSearch())
+                && Objects.equals(isExcludeFromSearch(), other.isExcludeFromSearch())
+                && Objects.equals(isExcludeFromSearchEngines(), other.isExcludeFromSearchEngines())
+                && Objects.equals(isExcludeFromRecommendations(), other.isExcludeFromRecommendations())
                 && Objects.equals(getSiteSection(), other.getSiteSection());
         }
         return false;

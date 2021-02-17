@@ -49,7 +49,9 @@ public class PageParsingServiceImpl implements PageParsingService {
             .withPublishedDate(getDateProperty(pageEntity, "cq:lastModified"))
             .withUrl(pageUrl)
             .withTemplate(getTemplate(pageEntity))
-            .shouldExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"))
+            .isExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"))
+            .isExcludeFromSearchEngines(getBooleanProperty(pageEntity, "excludeFromSearchEngines"))
+            .isExcludeFromRecommendations(getBooleanProperty(pageEntity, "excludeFromRecommendations"))
             .withTags(getTags(pageEntity.getProperties().entrySet()))
             .withSiteSection(buildSiteSectionFromUrl(pageUrl))
             .withImageUrl(getImageUrl(pageEntity, pageUrl));

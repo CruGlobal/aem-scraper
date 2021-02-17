@@ -123,14 +123,7 @@ public class Main {
             LOG.info("Parsing pages ...");
             pageParsingService.parsePages(rootEntity, ALL_PAGE_DATA);
             LOG.info("Parsing pages ... done {}", rootEntity.getJcrContent());
-            Set<Template> desiredTemplates = ImmutableSet.of(
-                STATIC_ARTICLE,
-                ARTICLE_LONG_FORM,
-                DAILY_CONTENT,
-                DYNAMIC_ARTICLE,
-                SUMMER_MISSION,
-                INTERNATIONAL_INTERNSHIP
-            );
+            Set<Template> desiredTemplates = ImmutableSet.of(STATIC_ARTICLE, ARTICLE_LONG_FORM);
 
             LOG.info("Remove undesired templates ...");
             Set<PageData> filteredData = aemScraperService.removeUndesiredTemplates(ALL_PAGE_DATA, desiredTemplates);

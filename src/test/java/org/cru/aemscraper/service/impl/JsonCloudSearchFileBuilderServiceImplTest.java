@@ -147,8 +147,8 @@ public class JsonCloudSearchFileBuilderServiceImplTest {
     public void testFilterExcludedFromSearch() {
         String desiredTemplate = "CruOrgApp/components/page/summermission";
 
-        PageData desiredPage = new PageData().withTemplate(desiredTemplate).shouldExcludeFromSearch(false);
-        PageData undesiredPage = new PageData().withTemplate(desiredTemplate).shouldExcludeFromSearch(true);
+        PageData desiredPage = new PageData().withTemplate(desiredTemplate).isExcludeFromSearch(false);
+        PageData undesiredPage = new PageData().withTemplate(desiredTemplate).isExcludeFromSearch(true);
 
         Set<PageData> allPages = Sets.newHashSet(desiredPage, undesiredPage);
         Set<PageData> expectedFiltered = Sets.newHashSet(desiredPage);
