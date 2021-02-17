@@ -105,20 +105,20 @@ public class PageData {
         return this;
     }
 
-    public boolean shouldExcludeFromSearch() {
+    public boolean isExcludeFromSearch() {
         return excludeFromSearch;
     }
 
-    public PageData shouldExcludeFromSearch(final boolean excludeFromSearch) {
+    public PageData isExcludeFromSearch(final boolean excludeFromSearch) {
         this.excludeFromSearch = excludeFromSearch;
         return this;
     }
 
-    public boolean shouldExcludeFromSearchEngines() {
+    public boolean isExcludeFromSearchEngines() {
         return excludeFromSearchEngines;
     }
 
-    public PageData shouldExcludeFromSearchEngines(final boolean excludeFromSearchEngines) {
+    public PageData isExcludeFromSearchEngines(final boolean excludeFromSearchEngines) {
         this.excludeFromSearchEngines = excludeFromSearchEngines;
         return this;
     }
@@ -159,8 +159,8 @@ public class PageData {
                 && Objects.equals(getImageUrl(), other.getImageUrl())
                 && Objects.equals(getPublishedDate(), other.getPublishedDate())
                 && Objects.equals(getTemplate(), other.getTemplate())
-                && Objects.equals(shouldExcludeFromSearch(), other.shouldExcludeFromSearch())
-                && Objects.equals(shouldExcludeFromSearchEngines(), other.shouldExcludeFromSearchEngines())
+                && Objects.equals(isExcludeFromSearch(), other.isExcludeFromSearch())
+                && Objects.equals(isExcludeFromSearchEngines(), other.isExcludeFromSearchEngines())
                 && Objects.equals(isExcludeFromRecommendations(), other.isExcludeFromRecommendations())
                 && Objects.equals(getSiteSection(), other.getSiteSection());
         }

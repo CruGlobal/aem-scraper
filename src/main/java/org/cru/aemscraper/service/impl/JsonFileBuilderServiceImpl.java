@@ -40,8 +40,8 @@ public class JsonFileBuilderServiceImpl implements JsonFileBuilderService {
     private Set<PageData> filterPages(final Set<PageData> pageData) {
         return pageData
                 .stream()
-                .filter(page -> !page.shouldExcludeFromSearch())
-                .filter(page -> !page.shouldExcludeFromSearchEngines())
+                .filter(page -> !page.isExcludeFromSearch())
+                .filter(page -> !page.isExcludeFromSearchEngines())
                 .collect(Collectors.toSet());
     }
 
