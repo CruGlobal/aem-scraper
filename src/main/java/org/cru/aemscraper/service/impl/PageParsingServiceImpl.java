@@ -22,9 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class PageParsingServiceImpl implements PageParsingService {
     HtmlParserService htmlParserService;
+
+    private String scaleOfBeliefTag = "target-audience:scale-of-belief/";
 
     public PageParsingServiceImpl(final HtmlParserService htmlParserService) {
         this.htmlParserService = htmlParserService;
@@ -52,7 +55,8 @@ public class PageParsingServiceImpl implements PageParsingService {
             .isExcludeFromSearch(getBooleanProperty(pageEntity, "excludeFromSearch"))
             .isExcludeFromSearchEngines(getBooleanProperty(pageEntity, "excludeFromSearchEngines"))
             .isExcludeFromRecommendations(getBooleanProperty(pageEntity, "excludeFromRecommendations"))
-            .withTags(getTags(pageEntity.getProperties().entrySet()))
+            .withTags(getTags(pageEntity.getProperties().entrySet()).
+                            stream().filter(tag -> !tag.startsWith(scaleOfBeliefTag)).collect(Collectors.toList()))
             .withSiteSection(buildSiteSectionFromUrl(pageUrl))
             .withImageUrl(getImageUrl(pageEntity, pageUrl));
 
@@ -101,7 +105,7 @@ public class PageParsingServiceImpl implements PageParsingService {
         }
         List<String> tags = getTags(pageProperties);
         for (String tag : tags) {
-            if (tag.startsWith("target-audience:scale-of-belief/")) {
+            if (tag.startsWith(scaleOfBeliefTag)) {
                 return tag.substring(tag.lastIndexOf("/") + 1);
             }
         }
