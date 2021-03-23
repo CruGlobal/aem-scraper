@@ -58,7 +58,8 @@ public class PageParsingServiceImpl implements PageParsingService {
             .withTags(getTags(pageEntity.getProperties().entrySet()).
                             stream().filter(tag -> !tag.startsWith(scaleOfBeliefTag)).collect(Collectors.toList()))
             .withSiteSection(buildSiteSectionFromUrl(pageUrl))
-            .withImageUrl(getImageUrl(pageEntity, pageUrl));
+            .withImageUrl(getImageUrl(pageEntity, pageUrl))
+            .withChangeType(PageData.CHANGE_TYPE.Activate.name());
 
         allPageData.add(pageData);
     }
