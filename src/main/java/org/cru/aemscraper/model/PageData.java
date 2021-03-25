@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class PageData {
+
+    public enum CHANGE_TYPE {
+        Activate
+    }
+
     private String url;
     private String htmlBody;
     private String contentScore;
@@ -16,6 +21,7 @@ public class PageData {
     private String publishedDate;
     private String siteSection; // In the form of {first,second,third}
     private boolean excludeFromRecommendations;
+    private String changeType;
 
     @JsonIgnore
     private String template;
@@ -141,6 +147,16 @@ public class PageData {
         return this;
     }
 
+    public String getChangeType()
+    {
+        return changeType;
+    }
+
+    public PageData withChangeType(final String changeType) {
+        this.changeType = changeType;
+        return this;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         boolean equals = super.equals(obj);
@@ -162,7 +178,8 @@ public class PageData {
                 && Objects.equals(isExcludeFromSearch(), other.isExcludeFromSearch())
                 && Objects.equals(isExcludeFromSearchEngines(), other.isExcludeFromSearchEngines())
                 && Objects.equals(isExcludeFromRecommendations(), other.isExcludeFromRecommendations())
-                && Objects.equals(getSiteSection(), other.getSiteSection());
+                && Objects.equals(getSiteSection(), other.getSiteSection())
+                && Objects.equals(getChangeType(), other.getChangeType());
         }
         return false;
     }
