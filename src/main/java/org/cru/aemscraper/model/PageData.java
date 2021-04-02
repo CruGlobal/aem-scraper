@@ -11,6 +11,7 @@ public class PageData {
         Activate
     }
 
+    private String uuid;
     private String url;
     private String htmlBody;
     private String contentScore;
@@ -29,6 +30,16 @@ public class PageData {
     private boolean excludeFromSearch;
     @JsonIgnore
     private boolean excludeFromSearchEngines;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public PageData withUuid(String uuid)
+    {
+        this.uuid = uuid;
+        return this;
+    }
 
     public String getUrl() {
         return url;
@@ -167,6 +178,7 @@ public class PageData {
         if (obj instanceof PageData) {
             PageData other = (PageData) obj;
             return Objects.equals(getUrl(), other.getUrl())
+                && Objects.equals(getUuid(), other.getUuid())
                 && Objects.equals(getHtmlBody(), other.getHtmlBody())
                 && Objects.equals(getContentScore(), other.getContentScore())
                 && Objects.equals(getTags(), other.getTags())

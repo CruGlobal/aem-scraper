@@ -44,6 +44,7 @@ public class PageParsingServiceImpl implements PageParsingService {
 
         String pageUrl = determineUrl(pageEntity);
         PageData pageData = new PageData()
+            .withUuid(getUuid(pageEntity))
             .withHtmlBody(htmlParserService.parsePage(pageEntity))
             .withContentScore(getContentScore(pageEntity))
             .withTitle(getBasicStringProperty(pageEntity, "dc:title"))
@@ -90,6 +91,12 @@ public class PageParsingServiceImpl implements PageParsingService {
             }
         }
         return null;
+    }
+
+    String getUuid(final PageEntity pageEntity)
+    {
+        return pageEntity.getJcrContent() != null && pageEntity.getJcrContent().get("jcr:uuid") != null ?
+                pageEntity.getJcrContent().get("jcr:uuid").asText() : null;
     }
 
     String getContentScore(final PageEntity pageEntity) {
