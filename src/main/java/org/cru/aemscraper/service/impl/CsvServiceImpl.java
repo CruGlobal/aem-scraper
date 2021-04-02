@@ -26,6 +26,7 @@ public class CsvServiceImpl implements CsvService {
         for (PageData entry : allPageData) {
             if (!entry.getHtmlBody().isEmpty()) {
                 csvPrinter.printRecord(
+                    entry.getUuid(),
                     entry.getContentScore(),
                     entry.getHtmlBody(),
                     entry.getTitle(),
