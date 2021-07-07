@@ -176,6 +176,7 @@ public class JsonCloudSearchFileBuilderServiceImpl implements JsonCloudSearchFil
             fields.put("published_date", data.getPublishedDate());
         }
         fields.put("path", data.getUrl());
+        fields.put("path_literal", data.getUrl());
         return fields;
     }
 }
