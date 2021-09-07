@@ -47,6 +47,7 @@ public class JsonCloudSearchFileBuilderServiceImplTest {
         assertThat(fields.get("image_url"), is(equalTo(pageData.getImageUrl())));
         assertThat(fields.get("published_date"), is(equalTo(pageData.getPublishedDate())));
         assertThat(fields.get("path"), is(equalTo(pageData.getUrl())));
+        assertThat(fields.get("path_literal"), is(equalTo(pageData.getUrl())));
     }
 
     @Test
